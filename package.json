@@ -1,0 +1,32 @@
+{
+  "name": "cache-all",
+  "version": "1.0.0",
+  "description": "Fast, efficient cache modules for both express routes cache & native node (redis, in-memory & file cache,...)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahung1221/cache-all.git"
+  },
+  "keywords": [
+    "cache",
+    "express-cache",
+    "node-cache",
+    "redis-cache",
+    "memcached",
+    "file-cache",
+    "route-cache"
+  ],
+  "author": "bahung1221@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bahung1221/cache-all/issues"
+  },
+  "homepage": "https://github.com/bahung1221/cache-all#readme",
+  "dependencies": {
+    "cacheman-file": "^0.2.1",
+    "cacheman-memory": "^1.1.0"
+  }
+}
