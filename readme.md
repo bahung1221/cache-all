@@ -1,6 +1,6 @@
 # cache-all
-Fast, efficient cache modules for both express routes cache & native node (redis, in-memory & file cache,...),
-singleton pattern make your application run fast like a boss.
+Fast, efficient cache modules for expressJS (include route caching) & native nodeJS (redis, in-memory & file caching,...),
+singleton pattern make your application run smoothly like a boss.
 
 ## Install
 ```
@@ -118,4 +118,9 @@ router.get('/foo', cache.middleware(60), function(req, res, next) {
 })
 // First time request '/foo' will cache response data before send back to client
 // Next time requests '/foo' will be response cached data
+```
+
+## Test
+```
+npm run test
 ```
