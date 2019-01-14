@@ -1,1 +1,4 @@
 .idea
+*/storage
+yarn.lock
+node_modules
