@@ -114,25 +114,26 @@ const cache = function () {
    * Middleware for caching response
    * Use on express route
    *
-   * @param req
-   * @param res
-   * @param next
+   * @param time
+   * @return {function}
    */
-  async function middleware(req, res, next) {
-    let key = _routeFingerprint(req.originalUrl, req.method)
+  function middleware(time) {
+    return async function (req, res, next) {
+      let key = _routeFingerprint(req.originalUrl, req.method)
 
-    // If data of current request was cached, response it
-    if (await has(key)) {
-      return res.json(await get(key))
-    }
+      // If data of current request was cached, response it
+      if (await has(key)) {
+        return res.json(await get(key))
+      }
 
-    // Get response data and set cache before response to client
-    res.sendJsonResponse = res.json
-    res.json = async function (data) {
-      await set(key, data)
-      res.sendJsonResponse(data)
+      // Get response data and set cache before response to client
+      res.sendJsonResponse = res.json
+      res.json = async function (data) {
+        await set(key, data, time || instance.config.expireIn)
+        res.sendJsonResponse(data)
+      }
+      next()
     }
-    next()
   }
 
   /**
