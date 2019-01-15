@@ -1,8 +1,8 @@
-const getCacheModule = require('./factory')
-const crypto = require('crypto')
+const cacheFile = require('./file')
+const cacheMemory = require('./memory')
 
 /**
- * Singleton cache instance and functions of it
+ * Proxy to specific cache instance and functions of it
  *
  * @return {{
  *    set: set,
@@ -11,20 +11,41 @@ const crypto = require('crypto')
  *    remove: remove
  * }}
  */
-const cache = function () {
+const cacheProxy = function () {
   /**
-   * Cache singleton instance
-   * @type {subject}
+   * Cache module (file, redis, mem)
+   *
+   * @type {object}
    */
-  let instance = null
+  let module = null
 
+  /**
+   * Get cache module base on given engine name
+   *
+   * @param engine
+   * @return {subject}
+   * @private
+   */
+  function _getCacheModule(engine) {
+    // Get cache module base on config engine
+    switch (engine) {
+      case 'file':
+        return cacheFile
+      case 'memory':
+        return cacheMemory
+      default:
+        return cacheMemory
+    }
+  }
   /**
    * Init cache engine
    *
+   * @param {object} config
    * @private
    */
   function init(config = {}) {
-    instance = getCacheModule(config)
+    module = _getCacheModule(config.engine)
+    module.init()
   }
 
   /**
@@ -36,18 +57,7 @@ const cache = function () {
    * @return {Promise<Object>}
    */
   async function set(key, value, time) {
-    // Check cache module instance was init yet
-    !instance && _throwError('init')
-
-    // Promisify because library doesn't support promise
-    return new Promise(((resolve, reject) => {
-      // Set the value
-      instance.set(key, value, time || instance.config.expireIn, function (error) {
-        if (error) return reject(error)
-
-        resolve({ status: 1 })
-      })
-    }))
+    return module.set(key, value, time)
   }
 
   /**
@@ -57,17 +67,7 @@ const cache = function () {
    * @return {Promise<*>}
    */
   async function get(key) {
-    // Check cache module instance was init yet
-    !instance && _throwError('init')
-
-    // Promisify because library doesn't support promise
-    return new Promise(((resolve, reject) => {
-      instance.get(key, function (error, value) {
-        if (error) return reject(error)
-
-        resolve(value)
-      })
-    }))
+    return module.get(key)
   }
 
   /**
@@ -77,17 +77,7 @@ const cache = function () {
    * @return {Promise<boolean>}
    */
   async function has(key) {
-    // Check cache module instance was init yet
-    !instance && _throwError('init')
-
-    // Promisify because library doesn't support promise
-    return new Promise(((resolve, reject) => {
-      instance.get(key, function (error, value) {
-        if (error) return reject(error)
-
-        resolve(!value ? false : true)
-      })
-    }))
+    return module.has(key)
   }
 
   /**
@@ -97,17 +87,7 @@ const cache = function () {
    * @return {Promise<Object>}
    */
   async function remove(key) {
-    // Check cache module instance was init yet
-    !instance && _throwError('init')
-
-    // Promisify because library doesn't support promise
-    return new Promise(((resolve, reject) => {
-      instance.del(key, function (err) {
-        if (err) return reject(err)
-
-        resolve({ status: 1 })
-      })
-    }))
+    return module.remove(key)
   }
 
   /**
@@ -118,55 +98,7 @@ const cache = function () {
    * @return {function}
    */
   function middleware(time) {
-    return async function (req, res, next) {
-      let key = _routeFingerprint(req.originalUrl, req.method)
-
-      // If data of current request was cached, response it
-      if (await has(key)) {
-        return res.json(await get(key))
-      }
-
-      // Get response data and set cache before response to client
-      res.sendJsonResponse = res.json
-      res.json = async function (data) {
-        await set(key, data, time || instance.config.expireIn)
-        res.sendJsonResponse(data)
-      }
-      next()
-    }
-  }
-
-  /**
-   * Get fingerprint of current request
-   * Use request full route (include query string) and request method
-   * For unique key each different request
-   *
-   * @param reqUrl
-   * @param reqMethod
-   * @return {string}
-   * @private
-   */
-  function _routeFingerprint(reqUrl, reqMethod) {
-    let fingerprint = reqMethod + '|' + reqUrl
-    return crypto
-      .createHash('md5')
-      .update(fingerprint)
-      .digest('hex')
-  }
-
-  /**
-   * Throw error when cache module was use in incorrect way
-   *
-   * @param type
-   * @private
-   */
-  function _throwError(type) {
-    switch (type) {
-      case 'init':
-        throw new Error('Cache module must be init first!')
-      default:
-        throw new Error('Cache module must be init first!')
-    }
+    return module.middleware(time)
   }
 
   return {
@@ -179,4 +111,4 @@ const cache = function () {
   }
 }
 
-module.exports = cache()
+module.exports = cacheProxy()

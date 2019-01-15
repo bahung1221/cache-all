@@ -1,6 +1,6 @@
 # cache-all
-Fast, efficient cache modules for expressJS (include route caching) & native nodeJS (redis, in-memory & file caching,...),
-singleton pattern make your application run smoothly like a boss.
+Fast, efficient cache engines for expressJS (include route caching) & native nodeJS (redis, in-memory & file caching,...),
+singleton pattern for each engine make your application run smoothly like a boss.
 
 ## Install
 ```
@@ -11,7 +11,7 @@ or
 yarn add cache-all
 ```
 
-## Usages:
+## Usages (single cache engine):
 ### Init
 Init cache module once and then you can use it anywhere without re init (singleton),
 recommend init when booting your application
@@ -118,6 +118,45 @@ router.get('/foo', cache.middleware(60), function(req, res, next) {
 })
 // First time request '/foo' will cache response data before send back to client
 // Next time requests '/foo' will be response cached data
+```
+
+## Usages (multi engine)
+You can use many cache engine together in your application, each engine still has
+singleton instance of it, that work independent with other
+
+Just require specific engine you need instead require root
+- init
+```
+const fileCache = require('cache-all/file')
+const memoryCache = require('cache-all/memory')
+
+// ...
+fileCache.init({
+  expireIn: 60,
+  file: {
+    path: path.join(process.cwd(), 'storage', 'cache')
+  }
+})
+memoryCache.init({
+  expireIn: 60,
+})
+// ...
+
+app.listen(...)
+```
+
+- set/get/has/remove/middleware
+```javascript
+const fileCache = require('cache-all/file')
+const memoryCache = require('cache-all/memory')
+
+fileCache
+  .set('foo', 'bar', 90)
+  .then(result => console.log(result)) // {status: 1}
+  
+memoryCache
+  .set('foo', 'bar', 90)
+  .then(result => console.log(result)) // {status: 1}
 ```
 
 ## Test
