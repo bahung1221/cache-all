@@ -4,7 +4,7 @@ singleton pattern make your application run smoothly like a boss.
 
 - Multi cache engines, each engine has one singleton instance and independent with other engine.
 - Include express middleware, which can be use for cache response on specific routes.
-- Init once and then use anywhere for cache anything in your application.
+- Init once and then use anywhere for caching anything in your application.
 
 ## Install
 ```
