@@ -67,7 +67,9 @@ Just config for engine that will be use
     expireIn: 90,
     redis: {
       port: 6379,
-      host: '127.0.0.1'
+      host: '127.0.0.1',
+      // password: 'yourpass',
+      // database: 0,
     }
 }
 ```
@@ -194,7 +196,7 @@ npm run test
 ```
 
 ## TODO
-Redis & mongo cache engines
+Mongo cache engines
 
 ## Contributes
-You are welcome
+You are welcome <3
