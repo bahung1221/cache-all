@@ -192,7 +192,7 @@ npm run test
 ```
 
 ## TODO
-Redis & mongo cache engines
+Mongo cache engines
 
 ## Contributes
-You are welcome
+You are welcome <3
