@@ -1,3 +1,4 @@
+const cacheRedis = require('./redis')
 const cacheFile = require('./file')
 const cacheMemory = require('./memory')
 
@@ -33,6 +34,8 @@ const cacheProxy = function () {
         return cacheFile
       case 'memory':
         return cacheMemory
+      case 'redis':
+        return cacheRedis
       default:
         return cacheMemory
     }
