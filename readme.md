@@ -1,6 +1,10 @@
 # cache-all
-Fast, efficient cache engines for expressJS (include route caching) & native nodeJS (redis, in-memory & file caching,...),
-singleton pattern for each engine make your application run smoothly like a boss.
+:rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching,...),
+singleton pattern make your application run smoothly like a boss.
+
+- Multi cache engines, each engine has one singleton instance and independent with other engine.
+- Include express middleware, which can be use for cache response on specific routes.
+- Init once and then use anywhere for cache anything in your application.
 
 ## Install
 ```
