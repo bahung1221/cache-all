@@ -35,10 +35,10 @@ app.listen(...)
 ### Init default config:
 ```javascript
 {
-    engine: 'memory',
+    engine: 'memory', // 'memory', 'file', 'redis'
     expireIn: 90,
     file: {
-      path: path.join(process.cwd(), 'storage', 'cache')
+      path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache module
     }
 }
 ```
@@ -124,3 +124,9 @@ router.get('/foo', cache.middleware(60), function(req, res, next) {
 ```
 npm run test
 ```
+
+## TODO
+Redis & mongo cache modules
+
+## Contributes
+You are welcome
