@@ -32,7 +32,7 @@ cache.init({
 app.listen(...)
 ```
 
-### Init default config:
+### Default config:
 ```javascript
 {
     engine: 'memory', // 'memory', 'file', 'redis'
@@ -126,7 +126,7 @@ singleton instance of it, that work independent with other
 
 Just require specific engine you need instead require root
 - init
-```
+```javascript
 const fileCache = require('cache-all/file')
 const memoryCache = require('cache-all/memory')
 
