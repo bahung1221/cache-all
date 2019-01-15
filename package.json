@@ -1,7 +1,7 @@
 {
   "name": "cache-all",
-  "version": "1.0.2",
-  "description": "Fast, efficient cache modules for both express routes cache & native node (redis, in-memory & file cache,...)",
+  "version": "1.0.3",
+  "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache,...)",
   "main": "./index.js",
   "scripts": {
     "test": "mocha"
