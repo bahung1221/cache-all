@@ -13,7 +13,7 @@ yarn add cache-all
 
 ## Usages (single cache engine):
 ### Init
-Init cache module once and then you can use it anywhere without re init (singleton),
+Init cache engine once and then you can use it anywhere without re init (singleton),
 recommend init when booting your application
 
 Example init in your server.js:
@@ -38,7 +38,7 @@ app.listen(...)
     engine: 'memory', // 'memory', 'file', 'redis'
     expireIn: 90,
     file: {
-      path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache module
+      path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache engine
     }
 }
 ```
@@ -165,7 +165,7 @@ npm run test
 ```
 
 ## TODO
-Redis & mongo cache modules
+Redis & mongo cache engines
 
 ## Contributes
 You are welcome
