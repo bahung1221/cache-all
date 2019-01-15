@@ -70,7 +70,7 @@ Just config for engine that will be use
 }
 ```
 
-### Set
+### Set(key, value, [expireIn])
 Set cache:
 ```javascript
 const cache = require('cache-all')
@@ -93,7 +93,7 @@ cache
   .then(result => console.log(result)) // {status: 1}
 ```
 
-### Get
+### Get(key)
 Get cache (if key doesn't exist, null will be return withou exception):
 ```javascript
 const cache = require('cache-all')
@@ -105,7 +105,7 @@ cache
   .then(result => console.log(result)) // 'bar'
 ```
 
-### Has
+### Has(key)
 Check if given key exist:
 ```javascript
 const cache = require('cache-all')
@@ -117,7 +117,7 @@ cache
   .then(result => console.log(result)) // true
 ```
 
-### Remove
+### Remove(key)
 Remove given cache key:
 ```javascript
 const cache = require('cache-all')
@@ -129,7 +129,7 @@ cache
   .then(result => console.log(result)) // {status: 1}
 ```
 
-### Cache on express route
+### cacheMiddleware([expireIn]) (Cache on express route)
 This package provide a middleware which will cache your response data
 base on request fullpath and request method
 
