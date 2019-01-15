@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/cache-all.svg)](https://www.npmjs.com/package/cache-all)
+
 # cache-all
 :rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching,...),
 singleton pattern make your application run smoothly like a boss.
