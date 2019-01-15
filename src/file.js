@@ -26,7 +26,7 @@ const cache = function () {
    * @type {object}
    */
   const baseConfig = {
-    engine: 'memory',
+    engine: 'file',
     expireIn: 90,
     file: {
       path: path.join(process.cwd(), 'storage', 'cache')
@@ -133,6 +133,25 @@ const cache = function () {
   }
 
   /**
+   * Clear all cached data
+   *
+   * @return {Promise<object>}
+   */
+  async function clear() {
+    // Check cache module instance was init yet
+    !instance && _throwError('init')
+
+    // Promisify because library doesn't support promise
+    return new Promise(((resolve, reject) => {
+      instance.clear(function (err) {
+        if (err) return reject(err)
+
+        resolve({ status: 1 })
+      })
+    }))
+  }
+
+  /**
    * Middleware for caching response
    * Use on express route
    *
@@ -197,6 +216,7 @@ const cache = function () {
     get,
     has,
     remove,
+    clear,
     middleware,
   }
 }

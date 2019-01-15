@@ -57,7 +57,7 @@ const cacheProxy = function () {
    * @return {Promise<Object>}
    */
   async function set(key, value, time) {
-    return module.set(key, value, time)
+    return await module.set(key, value, time)
   }
 
   /**
@@ -67,7 +67,7 @@ const cacheProxy = function () {
    * @return {Promise<*>}
    */
   async function get(key) {
-    return module.get(key)
+    return await module.get(key)
   }
 
   /**
@@ -77,7 +77,7 @@ const cacheProxy = function () {
    * @return {Promise<boolean>}
    */
   async function has(key) {
-    return module.has(key)
+    return await module.has(key)
   }
 
   /**
@@ -87,7 +87,16 @@ const cacheProxy = function () {
    * @return {Promise<Object>}
    */
   async function remove(key) {
-    return module.remove(key)
+    return await module.remove(key)
+  }
+
+  /**
+   * Clear all cached data
+   *
+   * @return {Promise<object>}
+   */
+  async function clear() {
+    return await module.clear()
   }
 
   /**
@@ -107,6 +116,7 @@ const cacheProxy = function () {
     get,
     has,
     remove,
+    clear,
     middleware,
   }
 }

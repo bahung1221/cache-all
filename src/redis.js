@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const CachemanMemory = require('cacheman-memory')
+const CachemanRedis = require('cacheman-redis')
 
 /**
  * Singleton cache instance and functions of it
@@ -24,10 +24,13 @@ const cache = function () {
    * @type {object}
    */
   const baseConfig = {
-    engine: 'memory',
+    engine: 'redis',
     expireIn: 90,
+    redis: {
+      port: 6379,
+      host: '127.0.0.1'
+    }
   }
-
   /**
    * Init cache engine
    *
@@ -38,7 +41,7 @@ const cache = function () {
     // Assign default config with input config
     config = Object.assign(baseConfig, config)
 
-    instance = new CachemanMemory()
+    instance = new CachemanRedis(config.redis)
     instance.config = config
   }
 

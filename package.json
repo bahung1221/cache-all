@@ -1,6 +1,6 @@
 {
   "name": "cache-all",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache,...)",
   "main": "./index.js",
   "scripts": {
@@ -27,7 +27,9 @@
   "homepage": "https://github.com/bahung1221/cache-all#readme",
   "dependencies": {
     "cacheman-file": "^0.2.1",
-    "cacheman-memory": "^1.1.0"
+    "cacheman-memory": "^1.1.0",
+    "cacheman-redis": "^2.0.0",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "mocha": "^5.2.0"
