@@ -38,7 +38,7 @@ cache.init({
 app.listen(...)
 ```
 
-#### Default config:
+Default config:
 Just config for engine that will be use
 
 - in-memory
