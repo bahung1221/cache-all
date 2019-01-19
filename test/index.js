@@ -1,72 +1,8 @@
 const assert = require('assert')
 const path = require('path')
-const cache = require('../')
 const fileCache = require('../file')
 const memoryCache = require('../memory')
 const redisCache = require('../redis')
-
-describe('Cache Proxy', function() {
-  describe('#init()', function() {
-    it('should have main methods', function () {
-      assert.ok(cache.set)
-      assert.ok(cache.get)
-      assert.ok(cache.has)
-      assert.ok(cache.remove)
-      assert.ok(cache.clear)
-      assert.ok(cache.middleware)
-    })
-
-    it('should throw error if cache module wasn\'t init before', async function () {
-      try {
-        await cache.set('key', {foo: 'bar'})
-        return Promise.reject('it doesn\'t throw error')
-      } catch (e) {
-        Promise.resolve('OK')
-      }
-    })
-
-    it('should init successful use default config', async function() {
-      cache.init()
-
-      try {
-        await cache.get('key')
-        return Promise.resolve('OK')
-      } catch (e) {
-        Promise.reject('Init default fail')
-      }
-    })
-  })
-
-  describe('#set', function() {
-    it('should return status 1 when set string data cache successful', async function() {
-      let rs = await cache.set('foo', 'bar')
-      if (rs.status === 1) {
-        return Promise.resolve('OK')
-      }
-      return Promise.reject('response status not equal 1')
-    })
-
-    it('should return status 1 when set object data cache successful', async function() {
-      let rs = await cache.set('foo1', {bar: 'baz'})
-      if (rs.status === 1) {
-        return Promise.resolve('OK')
-      }
-      return Promise.reject('response status not equal 1')
-    })
-  })
-
-  describe('#get', function() {
-    it('should return "bar" when get key "foo" successful', async function() {
-      let rs = await cache.get('foo')
-      assert.equal(rs, 'bar', 'response not equal "bar"');
-    })
-
-    it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
-      let rs = await cache.get('foo1')
-      assert.deepEqual(rs, {bar: 'baz'}, 'response not equal "{bar: \'baz\'}"')
-    })
-  })
-})
 
 describe('File Cache Module', function() {
   describe('#init()', function() {
@@ -79,24 +15,36 @@ describe('File Cache Module', function() {
       assert.ok(fileCache.middleware)
     })
 
-    it('should throw error if cache module wasn\'t init before', async function () {
-      try {
-        await fileCache.set('key', {foo: 'bar'})
-        return Promise.reject('it doesn\'t throw error')
-      } catch (e) {
-        Promise.resolve('OK')
+    it('should return status 0 if cache module wasn\'t init before', async function () {
+      let rs = await fileCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
       }
+      return Promise.reject('response status not equal 0')
+    })
+
+    it('should return status 0 if cache module wasn\'t enable', async function () {
+      fileCache.init({
+        isEnable: false
+      })
+
+      let rs = await fileCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('response status not equal 0')
     })
 
     it('should init successful use default config', async function() {
-      fileCache.init()
+      fileCache.init({
+        isEnable: true
+      })
 
-      try {
-        await fileCache.get('key')
+      let rs = await fileCache.set('key', {foo: 'bar'})
+      if (rs.status === 1) {
         return Promise.resolve('OK')
-      } catch (e) {
-        Promise.reject('Init default fail')
       }
+      return Promise.reject('response status not equal 1')
     })
 
     it('should init successful use file engine', async function() {

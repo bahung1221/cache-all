@@ -26,6 +26,7 @@ const cache = function () {
   const baseConfig = {
     engine: 'redis',
     expireIn: 90,
+    isEnable: true,
     redis: {
       port: 6379,
       host: '127.0.0.1'
@@ -41,6 +42,11 @@ const cache = function () {
     // Assign default config with input config
     config = Object.assign(baseConfig, config)
 
+    // If cache was disable (development purpose, etc...)
+    if (!config.isEnable) {
+      return
+    }
+
     instance = new CachemanRedis(config.redis)
     instance.config = config
   }
@@ -55,7 +61,9 @@ const cache = function () {
    */
   async function set(key, value, time) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -76,7 +84,9 @@ const cache = function () {
    */
   async function get(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return null
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -96,7 +106,9 @@ const cache = function () {
    */
   async function has(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return false
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -116,7 +128,9 @@ const cache = function () {
    */
   async function remove(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -135,7 +149,9 @@ const cache = function () {
    */
   async function clear() {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {

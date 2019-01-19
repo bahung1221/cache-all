@@ -25,12 +25,17 @@ recommend init when booting your application
 Example init in your server.js:
 ```javascript
 const express = require('express')
-const cache = require('cache-all')
+const cache = require('cache-all') // default is in-memory engine
+// or
+const cache = require('cache-all/memory') // explicit in-memory engine
+// or
+const cache = require('cache-all/file') // file engine
+// or
+const cache = require('cache-all/redis') // redis engine
 const app = express()
 
 // ...
 cache.init({
-  engine: 'memory',
   expireIn: 60,
 })
 // ...
@@ -44,33 +49,33 @@ Just config for engine that will be use
 - in-memory
 ```javascript
 {
-    engine: 'memory', // 'memory', 'file', 'redis'
-    expireIn: 90
+  expireIn: 90
+  isEnable: true, // Flag for enable/disable cache, useful for development
 }
 ```
 
 - file
 ```javascript
 {
-    engine: 'file', // 'memory', 'file', 'redis'
-    expireIn: 90,
-    file: {
-      path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache engine
-    }
+  expireIn: 90,
+  isEnable: true, // Flag for enable/disable cache, useful for development
+  file: {
+    path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache engine
+  }
 }
 ```
 
 - redis
 ```javascript
 {
-    engine: 'redis', // 'memory', 'file', 'redis'
-    expireIn: 90,
-    redis: {
-      port: 6379,
-      host: '127.0.0.1',
-      // password: 'yourpass',
-      // database: 0,
-    }
+  expireIn: 90,
+  isEnable: true, // Flag for enable/disable cache, useful for development
+  redis: {
+    port: 6379,
+    host: '127.0.0.1',
+    // password: 'yourpass',
+    // database: 0,
+  }
 }
 ```
 

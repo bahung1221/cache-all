@@ -25,6 +25,7 @@ const cache = function () {
    */
   const baseConfig = {
     engine: 'memory',
+    isEnable: true,
     expireIn: 90,
   }
 
@@ -37,6 +38,11 @@ const cache = function () {
   function init(config) {
     // Assign default config with input config
     config = Object.assign(baseConfig, config)
+
+    // If cache was disable (development purpose, etc...)
+    if (!config.isEnable) {
+      return
+    }
 
     instance = new CachemanMemory()
     instance.config = config
@@ -52,7 +58,9 @@ const cache = function () {
    */
   async function set(key, value, time) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -73,7 +81,9 @@ const cache = function () {
    */
   async function get(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return null
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -92,8 +102,10 @@ const cache = function () {
    * @return {Promise<boolean>}
    */
   async function has(key) {
-    // Check cache module instance was init yet
-    !instance && _throwError('init')
+    /// Check cache module instance was init yet
+    if (!instance) {
+      return false
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -113,7 +125,9 @@ const cache = function () {
    */
   async function remove(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -132,7 +146,9 @@ const cache = function () {
    */
   async function clear() {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {

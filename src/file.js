@@ -27,6 +27,7 @@ const cache = function () {
    */
   const baseConfig = {
     engine: 'file',
+    isEnable: true,
     expireIn: 90,
     file: {
       path: path.join(process.cwd(), 'storage', 'cache')
@@ -42,6 +43,11 @@ const cache = function () {
     // Assign default config with input config
     config = Object.assign(baseConfig, config)
     let cachePath = config.file.path
+
+    // If cache was disable (development purpose, etc...)
+    if (!config.isEnable) {
+      return
+    }
 
     // Create file cache directory if it doesn't yet exist
     mkdirp.sync(cachePath)
@@ -59,7 +65,9 @@ const cache = function () {
    */
   async function set(key, value, time) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -80,7 +88,9 @@ const cache = function () {
    */
   async function get(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return null
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -100,7 +110,9 @@ const cache = function () {
    */
   async function has(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return false
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -120,7 +132,9 @@ const cache = function () {
    */
   async function remove(key) {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
@@ -139,7 +153,9 @@ const cache = function () {
    */
   async function clear() {
     // Check cache module instance was init yet
-    !instance && _throwError('init')
+    if (!instance) {
+      return {status: 0}
+    }
 
     // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
