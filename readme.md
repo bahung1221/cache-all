@@ -21,7 +21,7 @@ yarn add cache-all
 
 ## Usages (single cache engine):
 ### Init
-Init cache engine once and then you can use it anywhere without re init (singleton),
+Init cache engine once and then you can use it anywhere,
 recommend init when booting your application
 
 Example init in your server.js:
@@ -60,7 +60,7 @@ Just config for engine that will be use
 ```javascript
 {
   expireIn: 90,
-  isEnable: true, // Flag for enable/disable cache, useful for development
+  isEnable: true,
   file: {
     path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache engine
   }
@@ -71,7 +71,7 @@ Just config for engine that will be use
 ```javascript
 {
   expireIn: 90,
-  isEnable: true, // Flag for enable/disable cache, useful for development
+  isEnable: true,
   redis: {
     port: 6379,
     host: '127.0.0.1',
@@ -85,8 +85,6 @@ Just config for engine that will be use
 Set cache:
 ```javascript
 const cache = require('cache-all')
-// or 
-const {set} = require('cache-all')
 
 cache
   .set('foo', 'bar')
@@ -96,8 +94,6 @@ cache
 Set cache with specific expire time (second):
 ```javascript
 const cache = require('cache-all')
-// or 
-const {set} = require('cache-all')
 
 cache
   .set('foo', 'bar', 90)
@@ -108,8 +104,6 @@ cache
 Get cache (if key doesn't exist, null will be return withou exception):
 ```javascript
 const cache = require('cache-all')
-// or 
-const {get} = require('cache-all')
 
 cache
   .get('foo')
@@ -120,8 +114,6 @@ cache
 Check if given key exist:
 ```javascript
 const cache = require('cache-all')
-// or 
-const {has} = require('cache-all')
 
 cache
   .has('foo')
@@ -132,8 +124,6 @@ cache
 Remove given cache key:
 ```javascript
 const cache = require('cache-all')
-// or 
-const {remove} = require('cache-all')
 
 cache
   .remove('foo')
@@ -148,14 +138,12 @@ base on request fullpath and request method
 const express = require('express')
 const router = express.Router()
 const cache = require('cache-all')
-// or 
-const {middleware} = require('cache-all')
 
 router.get('/foo', cache.middleware(60), function(req, res, next) {
   res.json({foo: 'bar'})
 })
-// First time request '/foo' will cache response data before send back to client
-// Next time requests '/foo' will be response cached data
+// First time request '/foo' will cache response data before send back to client (non-blocking)
+// Next time requests '/foo' will be response cached data immediately
 ```
 
 ## Usages (multi engine)
