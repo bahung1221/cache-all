@@ -51,7 +51,7 @@ Just config for engine that will be use
 - in-memory
 ```javascript
 {
-  expireIn: 90
+  expireIn: 90,
   isEnable: true, // Flag for enable/disable cache, useful for development
 }
 ```

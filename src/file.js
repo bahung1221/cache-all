@@ -1,7 +1,8 @@
 const path = require('path')
 const crypto = require('crypto')
 const mkdirp = require('mkdirp')
-const CachemanFile = require('cacheman-file')
+const fs = require('fs')
+const FileStore = require('./core/file')
 
 /**
  * Singleton cache instance and functions of it
@@ -51,7 +52,7 @@ const cache = function () {
 
     // Create file cache directory if it doesn't yet exist
     mkdirp.sync(cachePath)
-    instance = new CachemanFile({ tmpDir: cachePath })
+    instance = new FileStore({ tmpDir: cachePath })
     instance.config = config
   }
 
@@ -69,9 +70,7 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
-      // Set the value
       instance.set(key, value, time || instance.config.expireIn, function (error) {
         if (error) return reject(error)
 
@@ -92,7 +91,6 @@ const cache = function () {
       return null
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
@@ -114,7 +112,6 @@ const cache = function () {
       return false
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
@@ -136,10 +133,37 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.del(key, function (err) {
         if (err) return reject(err)
+
+        resolve({ status: 1 })
+      })
+    }))
+  }
+
+  /**
+   * Remove all keys that match the pattern
+   *
+   * @param pattern
+   * @return {Promise<object>}
+   */
+  async function removeByPattern(pattern) {
+    if (!instance) {
+      return { status: 0 }
+    }
+
+    let storagePath = instance.config.file.path
+
+    return new Promise(((resolve, reject) => {
+      fs.readdir(storagePath, (err, files) => {
+        if (err) return reject(err)
+
+        files.forEach(file => {
+          if (file.match(pattern)) {
+            fs.unlinkSync(path.join(storagePath, file))
+          }
+        })
 
         resolve({ status: 1 })
       })
@@ -157,7 +181,6 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.clear(function (err) {
         if (err) return reject(err)
@@ -172,15 +195,20 @@ const cache = function () {
    * Use on express route
    *
    * @param time
+   * @param prefix
    * @return {function}
    */
-  function middleware(time) {
+  function middleware(time, prefix = null) {
     return async function (req, res, next) {
       let key = _routeFingerprint(req.originalUrl, req.method)
+      if (prefix) {
+        key = prefix + '_' + key
+      }
 
       // If data of current request was cached, response it
-      if (await has(key)) {
-        return res.json(await get(key))
+      let cached = await get(key)
+      if (cached) {
+        return res.json(cached)
       }
 
       // Get response data and set cache before response to client
@@ -232,6 +260,7 @@ const cache = function () {
     get,
     has,
     remove,
+    removeByPattern,
     clear,
     middleware,
   }
