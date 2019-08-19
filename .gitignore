@@ -1,4 +1,4 @@
 .idea
-storage/cache
+*/storage/cache
 yarn.lock
 node_modules

@@ -11,6 +11,7 @@ describe('File Cache Module', function() {
       assert.ok(fileCache.get)
       assert.ok(fileCache.has)
       assert.ok(fileCache.remove)
+      assert.ok(fileCache.removeByPattern)
       assert.ok(fileCache.clear)
       assert.ok(fileCache.middleware)
     })
@@ -51,7 +52,7 @@ describe('File Cache Module', function() {
       fileCache.init({
         engine: 'file',
         expireIn: 60,
-        file: { path: path.join(__dirname, '../src/storage/cache') }
+        file: { path: path.join(__dirname, '../storage/cache') }
       })
 
       try {
@@ -115,6 +116,25 @@ describe('File Cache Module', function() {
     })
   })
 
+  describe('#removeByPattern', function() {
+    it('should be empty when get cache after remove all by pattern', async function () {
+      await fileCache.set('pattern_foo', 'bar')
+      await fileCache.set('pattern_foo2', 'bar')
+      await fileCache.set('pattern_foo3', 'bar')
+
+      await fileCache.removeByPattern(/pattern/g)
+      if (
+        await fileCache.get('pattern_foo') ||
+        await fileCache.get('pattern_foo2') ||
+        await fileCache.get('pattern_foo3')
+      ) {
+        return Promise.reject('It still has cache after remove')
+      }
+
+      return Promise.resolve('OK')
+    })
+  })
+
   describe('#clear', function() {
     it('should return status 1 when clear all cache', async function () {
       let rs = await fileCache.clear()
@@ -134,6 +154,7 @@ describe('In-memory Cache Module', function() {
       assert.ok(memoryCache.get)
       assert.ok(memoryCache.has)
       assert.ok(memoryCache.remove)
+      assert.ok(memoryCache.removeByPattern)
       assert.ok(memoryCache.clear)
       assert.ok(memoryCache.middleware)
     })
@@ -216,6 +237,25 @@ describe('In-memory Cache Module', function() {
     })
   })
 
+  describe('#removeByPattern', function() {
+    it('should be empty when get cache after remove all by pattern', async function () {
+      await memoryCache.set('pattern_foo', 'bar')
+      await memoryCache.set('pattern_foo2', 'bar')
+      await memoryCache.set('pattern_foo3', 'bar')
+
+      await memoryCache.removeByPattern(/pattern/g)
+      if (
+        await memoryCache.get('pattern_foo') ||
+        await memoryCache.get('pattern_foo2') ||
+        await memoryCache.get('pattern_foo3')
+      ) {
+        return Promise.reject('It still has cache after remove')
+      }
+
+      return Promise.resolve('OK')
+    })
+  })
+
   describe('#clear', function() {
     it('should return status 1 when clear all cache', async function () {
       let rs = await memoryCache.clear()
@@ -234,6 +274,7 @@ describe('Redis Cache Module', function() {
       assert.ok(redisCache.get)
       assert.ok(redisCache.has)
       assert.ok(redisCache.remove)
+      assert.ok(redisCache.removeByPattern)
       assert.ok(redisCache.clear)
       assert.ok(redisCache.middleware)
     })
@@ -317,6 +358,25 @@ describe('Redis Cache Module', function() {
         return Promise.resolve('OK')
       }
       return Promise.reject('response status not equal 1')
+    })
+  })
+
+  describe('#removeByPattern', function() {
+    it('should be empty when get cache after remove all by pattern', async function () {
+      await redisCache.set('pattern_foo', 'bar')
+      await redisCache.set('pattern_foo2', 'bar')
+      await redisCache.set('pattern_foo3', 'bar')
+
+      await redisCache.removeByPattern(/pattern/g)
+      if (
+        await redisCache.get('pattern_foo') ||
+        await redisCache.get('pattern_foo2') ||
+        await redisCache.get('pattern_foo3')
+      ) {
+        return Promise.reject('It still has cache after remove')
+      }
+
+      return Promise.resolve('OK')
     })
   })
 

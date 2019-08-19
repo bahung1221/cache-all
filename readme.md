@@ -51,7 +51,7 @@ Just config for engine that will be use
 - in-memory
 ```javascript
 {
-  expireIn: 90
+  expireIn: 90,
   isEnable: true, // Flag for enable/disable cache, useful for development
 }
 ```
@@ -81,7 +81,7 @@ Just config for engine that will be use
 }
 ```
 
-### Set(key, value, [expireIn])
+### set(key, value, [expireIn])
 Set cache:
 ```javascript
 const cache = require('cache-all')
@@ -100,7 +100,7 @@ cache
   .then(result => console.log(result)) // {status: 1}
 ```
 
-### Get(key)
+### get(key)
 Get cache (if key doesn't exist, null will be return withou exception):
 ```javascript
 const cache = require('cache-all')
@@ -110,7 +110,7 @@ cache
   .then(result => console.log(result)) // 'bar'
 ```
 
-### Has(key)
+### has(key)
 Check if given key exist:
 ```javascript
 const cache = require('cache-all')
@@ -120,7 +120,7 @@ cache
   .then(result => console.log(result)) // true
 ```
 
-### Remove(key)
+### remove(key)
 Remove given cache key:
 ```javascript
 const cache = require('cache-all')
@@ -130,16 +130,29 @@ cache
   .then(result => console.log(result)) // {status: 1}
 ```
 
-### cacheMiddleware([expireIn]) (Cache on express route)
+### removeByPattern(pattern)
+Remove all cached data base on pattern/text:
+```javascript
+const cache = require('cache-all')
+
+await cache.set('user_foo', { name: 'foo' })
+await cache.set('user_bar', { name: 'bar' })
+
+await cache.removeByPattern('user') // or removeByPattern(/user/)
+```
+
+### middleware([expireIn], [prefix]) (Cache on express route)
 This package provide a middleware which will cache your response data
-base on request fullpath and request method
+base on request fullpath, request method and prefix (optinal).
+
+**NOTE**: using prefix if you want manual clear data that was cached by middleware (using `removeByPattern(prefix)` method)
 
 ```javascript
 const express = require('express')
 const router = express.Router()
 const cache = require('cache-all')
 
-router.get('/foo', cache.middleware(60), function(req, res, next) {
+router.get('/api/user', cache.middleware(86400, 'user'), function(req, res, next) {
   res.json({foo: 'bar'})
 })
 // First time request '/foo' will cache response data before send back to client (non-blocking)

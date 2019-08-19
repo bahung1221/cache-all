@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const CachemanMemory = require('cacheman-memory')
+const MemoryStore = require('./core/memory')
 
 /**
  * Singleton cache instance and functions of it
@@ -14,7 +14,7 @@ const CachemanMemory = require('cacheman-memory')
 const cache = function () {
   /**
    * Cache singleton instance
-   * @type {subject}
+   * @type {MemoryStore}
    */
   let instance = null
 
@@ -44,7 +44,7 @@ const cache = function () {
       return
     }
 
-    instance = new CachemanMemory()
+    instance = new MemoryStore()
     instance.config = config
   }
 
@@ -140,6 +140,33 @@ const cache = function () {
   }
 
   /**
+   * Remove all keys that match the pattern
+   *
+   * @param pattern
+   * @return {Promise<object>}
+   */
+  async function removeByPattern(pattern) {
+    if (!instance) {
+      return Promise.resolve({ status: 0 })
+    }
+
+    return new Promise((resolve => {
+      let total = instance.count(),
+        count = 0
+
+      instance.loop(async (value, key) => {
+        if (key.match(pattern)) {
+          await this.remove(key)
+        }
+
+        if (++count === total) {
+          resolve({ status: 1 })
+        }
+      })
+    }))
+  }
+
+  /**
    * Clear all cached data
    *
    * @return {Promise<object>}
@@ -165,15 +192,20 @@ const cache = function () {
    * Use on express route
    *
    * @param time
+   * @param prefix
    * @return {function}
    */
-  function middleware(time) {
+  function middleware(time, prefix = null) {
     return async function (req, res, next) {
       let key = _routeFingerprint(req.originalUrl, req.method)
+      if (prefix) {
+        key = prefix + '_' + key
+      }
 
       // If data of current request was cached, response it
-      if (await has(key)) {
-        return res.json(await get(key))
+      let cached = await get(key)
+      if (cached) {
+        return res.json(cached)
       }
 
       // Get response data and set cache before response to client
@@ -225,6 +257,7 @@ const cache = function () {
     get,
     has,
     remove,
+    removeByPattern,
     clear,
     middleware,
   }
