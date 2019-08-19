@@ -203,8 +203,9 @@ const cache = function () {
       }
 
       // If data of current request was cached, response it
-      if (await has(key)) {
-        return res.json(await get(key))
+      let cached = await get(key)
+      if (cached) {
+        return res.json(cached)
       }
 
       // Get response data and set cache before response to client

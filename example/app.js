@@ -23,6 +23,9 @@ const users = [
   },
 ]
 
+/**
+ * Get all users
+ */
 app.get('/api/user', cache.middleware(846000, 'user'), async (req, res) => {
   // Simulate large request
   setTimeout(() => {
@@ -30,6 +33,9 @@ app.get('/api/user', cache.middleware(846000, 'user'), async (req, res) => {
   }, 3000)
 })
 
+/**
+ * Add new user
+ */
 app.post('/api/user', (req, res) => {
   let id = Math.floor(Math.random() * 100) + 3
   users.push({
