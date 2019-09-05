@@ -1,20 +1,27 @@
+const path = require('path')
 const crypto = require('crypto')
+const FileStore = require('./core/file')
 const MemoryStore = require('./core/memory')
+const RedisStore = require('./core/redis')
 
 /**
- * Singleton cache instance and functions of it
+ * Function to create singleton cache instance and functions of it (wrapper)
  *
  * @return {{
+ *    init: init,
  *    set: set,
  *    get: get,
  *    has: has,
  *    remove: remove
+ *    removeByPattern: removeByPattern
+ *    clear: clear
+ *    middleware: middleware
  * }}
  */
-const cache = function () {
+const cache = function (engine) {
   /**
    * Cache singleton instance
-   * @type {MemoryStore}
+   * @type {subject}
    */
   let instance = null
 
@@ -24,27 +31,46 @@ const cache = function () {
    * @type {object}
    */
   const baseConfig = {
-    engine: 'memory',
     isEnable: true,
-    expireIn: 90,
+    ttl: 90,
+    file: {
+      path: path.join(process.cwd(), 'storage', 'cache')
+    },
+    redis: {
+      port: 6379,
+      host: '127.0.0.1',
+    }
   }
-
   /**
    * Init cache engine
    *
    * @param {object} config
-   * @private
    */
   function init(config) {
-    // Assign default config with input config
-    config = Object.assign(baseConfig, config)
+    config = Object.assign({}, baseConfig, config)
 
     // If cache was disable (development purpose, etc...)
     if (!config.isEnable) {
       return
     }
 
-    instance = new MemoryStore()
+    // NOTE: cheat for sync expireIn with ttl
+    // expireIn was deprecate from v2.0.0, use ttl instead
+    if (config.expireIn) {
+      config.ttl = config.expireIn
+    }
+
+    switch (engine) {
+      case 'file':
+        instance = new FileStore(config.file)
+        break
+      case 'memory':
+        instance = new MemoryStore({ ttl: config.ttl })
+        break
+      case 'redis':
+        instance = new RedisStore(config.redis)
+        break
+    }
     instance.config = config
   }
 
@@ -62,10 +88,8 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
-      // Set the value
-      instance.set(key, value, time || instance.config.expireIn, function (error) {
+      instance.set(key, value, time || instance.config.ttl, function (error) {
         if (error) return reject(error)
 
         resolve({ status: 1 })
@@ -85,7 +109,6 @@ const cache = function () {
       return null
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
@@ -100,14 +123,14 @@ const cache = function () {
    *
    * @param key
    * @return {Promise<boolean>}
+   * @deprecated
    */
   async function has(key) {
-    /// Check cache module instance was init yet
+    // Check cache module instance was init yet
     if (!instance) {
       return false
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
@@ -129,9 +152,8 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
-      instance.del(key, function (err) {
+      instance.remove(key, function (err) {
         if (err) return reject(err)
 
         resolve({ status: 1 })
@@ -147,21 +169,14 @@ const cache = function () {
    */
   async function removeByPattern(pattern) {
     if (!instance) {
-      return Promise.resolve({ status: 0 })
+      return { status: 0 }
     }
 
-    return new Promise((resolve => {
-      let total = instance.count(),
-        count = 0
+    return new Promise(((resolve, reject) => {
+      instance.removeByPattern(pattern, function (err) {
+        if (err) return reject(err)
 
-      instance.loop(async (value, key) => {
-        if (key.match(pattern)) {
-          await this.remove(key)
-        }
-
-        if (++count === total) {
-          resolve({ status: 1 })
-        }
+        resolve({ status: 1 })
       })
     }))
   }
@@ -177,7 +192,6 @@ const cache = function () {
       return {status: 0}
     }
 
-    // Promisify because library doesn't support promise
     return new Promise(((resolve, reject) => {
       instance.clear(function (err) {
         if (err) return reject(err)
@@ -211,7 +225,7 @@ const cache = function () {
       // Get response data and set cache before response to client
       res.sendJsonResponse = res.json
       res.json = async function (data) {
-        await set(key, data, time || instance.config.expireIn)
+        await set(key, data, time || instance.config.ttl)
         res.sendJsonResponse(data)
       }
       next()
@@ -263,4 +277,4 @@ const cache = function () {
   }
 }
 
-module.exports = cache()
+module.exports = cache

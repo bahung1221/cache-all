@@ -118,6 +118,7 @@ describe('File Cache Module', function() {
 
   describe('#removeByPattern', function() {
     it('should be empty when get cache after remove all by pattern', async function () {
+      await fileCache.set('other_foo', 'bar')
       await fileCache.set('pattern_foo', 'bar')
       await fileCache.set('pattern_foo2', 'bar')
       await fileCache.set('pattern_foo3', 'bar')
@@ -129,6 +130,10 @@ describe('File Cache Module', function() {
         await fileCache.get('pattern_foo3')
       ) {
         return Promise.reject('It still has cache after remove')
+      }
+
+      if (!await fileCache.get('other_foo')) {
+        return Promise.reject('It removed incorrect key')
       }
 
       return Promise.resolve('OK')
@@ -239,6 +244,7 @@ describe('In-memory Cache Module', function() {
 
   describe('#removeByPattern', function() {
     it('should be empty when get cache after remove all by pattern', async function () {
+      await memoryCache.set('other_foo', 'bar')
       await memoryCache.set('pattern_foo', 'bar')
       await memoryCache.set('pattern_foo2', 'bar')
       await memoryCache.set('pattern_foo3', 'bar')
@@ -250,6 +256,10 @@ describe('In-memory Cache Module', function() {
         await memoryCache.get('pattern_foo3')
       ) {
         return Promise.reject('It still has cache after remove')
+      }
+
+      if (!await memoryCache.get('other_foo')) {
+        return Promise.reject('It removed incorrect key')
       }
 
       return Promise.resolve('OK')
@@ -363,6 +373,7 @@ describe('Redis Cache Module', function() {
 
   describe('#removeByPattern', function() {
     it('should be empty when get cache after remove all by pattern', async function () {
+      await redisCache.set('other_foo', 'bar')
       await redisCache.set('pattern_foo', 'bar')
       await redisCache.set('pattern_foo2', 'bar')
       await redisCache.set('pattern_foo3', 'bar')
@@ -374,6 +385,10 @@ describe('Redis Cache Module', function() {
         await redisCache.get('pattern_foo3')
       ) {
         return Promise.reject('It still has cache after remove')
+      }
+
+      if (!await redisCache.get('other_foo')) {
+        return Promise.reject('It removed incorrect key')
       }
 
       return Promise.resolve('OK')

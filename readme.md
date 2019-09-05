@@ -1,4 +1,6 @@
 [![npm version](https://badge.fury.io/js/cache-all.svg)](https://www.npmjs.com/package/cache-all)
+[![Dependency Status](https://david-dm.org/bahung1221/cache-all.svg)](https://david-dm.org/bahung1221/cache-all)
+
 [![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://nodei.co/npm/cache-all.png?downloads=true)
 
 # cache-all
@@ -38,7 +40,7 @@ const app = express()
 
 // ...
 cache.init({
-  expireIn: 60,
+  ttl: 90,
 })
 // ...
 
@@ -51,7 +53,7 @@ Just config for engine that will be use
 - in-memory
 ```javascript
 {
-  expireIn: 90,
+  ttl: 90,
   isEnable: true, // Flag for enable/disable cache, useful for development
 }
 ```
@@ -59,7 +61,7 @@ Just config for engine that will be use
 - file
 ```javascript
 {
-  expireIn: 90,
+  ttl: 90,
   isEnable: true,
   file: {
     path: path.join(process.cwd(), 'storage', 'cache') // Storage path for file cache engine
@@ -70,7 +72,7 @@ Just config for engine that will be use
 - redis
 ```javascript
 {
-  expireIn: 90,
+  ttl: 90,
   isEnable: true,
   redis: {
     port: 6379,
@@ -111,6 +113,8 @@ cache
 ```
 
 ### has(key)
+**Deprecated**: should use `cache.get` and then check returned value instead use this function because costs of these functions is same.
+
 Check if given key exist:
 ```javascript
 const cache = require('cache-all')
@@ -204,7 +208,17 @@ npm run test
 ```
 
 ## TODO
-Mongo cache engines
+- Mongo cache engines
+- Reduce number of dependencies
+- Update Code coverage
+- Event
 
 ## Contributes
 You are welcome <3
+
+## Release Note
+|Version|Date|Description|
+|:--:|:--:|:--|
+|1.0.0|2019-01-14|First version, contain basic functions|
+|1.1.0|2018-08-19|Add removeByPattern function & update dependencies|
+|2.0.0|2018-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
