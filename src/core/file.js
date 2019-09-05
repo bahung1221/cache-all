@@ -6,16 +6,16 @@ const Noop = function() {}
 /**
  * FileStore constructor
  * @param {Object} options
- * @param {String} options.tmpDir
+ * @param {String} options.path
  * @api public
  */
 function FileStore(options) {
   let self = this
-  self.tmpDir = options.tmpDir || Path.join(process.cwd(), 'tmp')
+  self.path = options.path
 
-  if (!Fs.existsSync(self.tmpDir)) Fs.mkdirSync(self.tmpDir)
+  if (!Fs.existsSync(self.path)) Fs.mkdirSync(self.path)
 
-  let cacheFiles = Fs.readdirSync(self.tmpDir)
+  let cacheFiles = Fs.readdirSync(self.path)
   self.cache = {}
   cacheFiles.forEach(function(file) {
     file = file.replace('.json', '')
@@ -36,7 +36,7 @@ FileStore.prototype.get = function get(key, fn) {
   let self = this,
     val = null,
     data = null,
-    cacheFile = Path.join(self.tmpDir, key + '.json')
+    cacheFile = Path.join(self.path, key + '.json')
 
   fn = fn || Noop
 
@@ -94,7 +94,7 @@ FileStore.prototype.set = function set(key, val, ttl, fn) {
   }
 
   key = sanitize(key)
-  let cacheFile = Path.join(self.tmpDir, key + '.json')
+  let cacheFile = Path.join(self.path, key + '.json')
 
   Fs.writeFileSync(cacheFile, JSON.stringify(data, null, 4))
 
@@ -110,10 +110,10 @@ FileStore.prototype.set = function set(key, val, ttl, fn) {
  * @param {Function} fn
  * @api public
  */
-FileStore.prototype.del = function del(key, fn) {
+FileStore.prototype.remove = function remove(key, fn) {
   key = sanitize(key)
   let self = this,
-    cacheFile = Path.join(self.tmpDir, key + '.json')
+    cacheFile = Path.join(self.path, key + '.json')
 
   fn = fn || Noop
 
@@ -141,19 +141,14 @@ FileStore.prototype.del = function del(key, fn) {
  * @param {Function} fn
  * @api public
  */
-FileStore.prototype.clear = function clear(key, fn) {
+FileStore.prototype.clear = function clear(fn) {
   let self = this
-
-  if ('function' === typeof key) {
-    fn = key
-    key = null
-  }
 
   fn = fn || Noop
 
   try {
-    Fs.removeSync(self.tmpDir)
-    Fs.mkdirSync(self.tmpDir)
+    Fs.removeSync(self.path)
+    Fs.mkdirSync(self.path)
   } catch (e) {
     return fn(e)
   }
@@ -185,4 +180,39 @@ FileStore.prototype.getAll = function (fn) {
   })
 }
 
-  module.exports = FileStore
+/**
+ * Remove all cached entries that match the pattern
+ *
+ * @param {String} pattern
+ * @param {Function} fn
+ */
+FileStore.prototype.removeByPattern = function removeByPattern(pattern, fn) {
+  let self = this,
+    storagePath = self.path,
+    clearedKeys = []
+
+  fn = fn || Noop
+
+  try {
+    let files = Fs.readdirSync(storagePath)
+
+    files.forEach(file => {
+      if (file.match(pattern)) {
+        Fs.removeSync(Path.join(storagePath, file))
+        clearedKeys.push(file.split('.json')[0])
+      }
+    })
+  } catch (e) {
+    return fn(e)
+  }
+
+  process.nextTick(function tick() {
+    clearedKeys.forEach(key => {
+      self.cache[key] = null
+    })
+
+    fn(null)
+  })
+}
+
+module.exports = FileStore

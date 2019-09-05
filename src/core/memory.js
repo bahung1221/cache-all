@@ -18,7 +18,7 @@ module.exports = class MemoryStore {
    * @api public
    */
   constructor(options = {}) {
-    this.client = new lru(options.count || 100)
+    this.client = new lru(options.ttl || 100)
   }
 
   /**
@@ -26,7 +26,7 @@ module.exports = class MemoryStore {
    *
    * @param {String} key
    * @param {Function} fn
-   * @api public
+   * @public
    */
   get(key, fn = noop) {
     let val, data = this.client.get(key)
@@ -51,7 +51,6 @@ module.exports = class MemoryStore {
    * @param {Mixed} val
    * @param {Number} ttl
    * @param {Function} fn
-   * @api public
    */
   set(key, val, ttl, fn = noop) {
     let data
@@ -85,9 +84,9 @@ module.exports = class MemoryStore {
    *
    * @param {String} key
    * @param {Function} fn
-   * @api public
+   * @public
    */
-  del(key, fn = noop) {
+  remove(key, fn = noop) {
     this.set(key, null, -1, fn)
   }
 
@@ -95,7 +94,7 @@ module.exports = class MemoryStore {
    * Clear all entries for this bucket.
    *
    * @param {Function} fn
-   * @api public
+   * @public
    */
   clear(fn = noop) {
     this.client.reset()
@@ -106,7 +105,7 @@ module.exports = class MemoryStore {
    * Get all entries in cache.
    *
    * @param {Function} fn
-   * @api public
+   * @public
    */
   getAll(fn = noop) {
     const entries = []
@@ -119,11 +118,26 @@ module.exports = class MemoryStore {
     fn(null, entries)
   }
 
-  loop(fn = noop) {
-    this.client.forEach(fn)
-  }
+  /**
+   * Remove all cached entries that match the pattern
+   *
+   * @param {String} pattern
+   * @param {Function} fn
+   */
+  removeByPattern(pattern, fn = noop) {
+    let total = this.client.itemCount,
+      count = 0
 
-  count() {
-    return this.client.itemCount
+    this.client.forEach((value, key) => {
+      if (key.match(pattern)) {
+        this.remove(key, (e) => {
+          if (e) return fn(e)
+        })
+      }
+
+      if (++count === total) {
+        fn(null)
+      }
+    })
   }
 }

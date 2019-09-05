@@ -54,7 +54,7 @@ class RedisStore {
    *
    * @param {String} key
    * @param {Function} fn
-   * @api public
+   * @public
    */
   get(key, fn = noop) {
     const k = `${this.prefix}${key}`
@@ -77,7 +77,7 @@ class RedisStore {
    * @param {Mixed} val
    * @param {Number} ttl
    * @param {Function} fn
-   * @api public
+   * @public
    */
   set(key, val, ttl, fn = noop) {
     const k = `${this.prefix}${key}`
@@ -110,9 +110,9 @@ class RedisStore {
    *
    * @param {String} key
    * @param {Function} fn
-   * @api public
+   * @public
    */
-  del(key, fn = noop) {
+  remove(key, fn = noop) {
     this.client.del(`${this.prefix}${key}`, fn)
   }
 
@@ -120,7 +120,7 @@ class RedisStore {
    * Clear all entries in cache.
    *
    * @param {Function} fn
-   * @api public
+   * @public
    */
   clear(fn = noop) {
     this.client.keys(`${this.prefix}*`, (err, data) => {
@@ -142,18 +142,41 @@ class RedisStore {
   }
 
   /**
+   * Remove all cached entries that match the pattern
+   *
+   * @param {String} pattern
+   * @param {Function} fn
+   * @public
+   */
+  removeByPattern(pattern, fn = noop) {
+    let count = 0
+
+    this._loop((err, total, key) => {
+      if (err) return fn(err)
+
+      if (key.match(pattern)) {
+        this.client.del(key)
+      }
+
+      if (++count === total) {
+        fn(null)
+      }
+    })
+  }
+
+  /**
    * Clear all entries in cache.
    *
    * @param {Function} fn
-   * @api public
+   * @private
    */
-  loop(fn = noop) {
-    this.client.keys(`${this.prefix}*`, (err, data) => {
+  _loop(fn = noop) {
+    this.client.keys(`${this.prefix}*`, (err, keys) => {
       if (err) return fn(err)
-      let count = data.length
+      let count = keys.length
       if (count === 0) return
 
-      data.forEach((key) => fn(null, count, key))
+      keys.forEach((key) => fn(null, count, key))
     })
   }
 }

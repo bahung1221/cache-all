@@ -1,1 +1,1 @@
-module.exports = require('./src/file')
+module.exports = require('./src/cache')('file')

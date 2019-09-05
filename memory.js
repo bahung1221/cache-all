@@ -1,1 +1,1 @@
-module.exports = require('./src/memory')
+module.exports = require('./src/cache')('memory')
