@@ -220,5 +220,5 @@ You are welcome <3
 |Version|Date|Description|
 |:--:|:--:|:--|
 |1.0.0|2019-01-14|First version, contain basic functions|
-|1.1.0|2018-08-19|Add removeByPattern function & update dependencies|
-|2.0.0|2018-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
+|1.1.0|2019-08-19|Add removeByPattern function & update dependencies|
+|2.0.0|2019-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
