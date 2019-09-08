@@ -1,13 +1,6 @@
 'use strict'
 
-/**
- * Module dependencies.
- */
 const lru = require('lru-cache')
-
-/**
- * Module constants.
- */
 const noop = () => {}
 
 module.exports = class MemoryStore {

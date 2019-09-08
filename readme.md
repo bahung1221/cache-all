@@ -4,7 +4,7 @@
 [![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://nodei.co/npm/cache-all.png?downloads=true)
 
 # cache-all
-:rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching,...),
+:rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching),
 singleton pattern make your application run smoothly like a boss.
 
 - Multi cache engines, each engine has one singleton instance and independent with other engine.
@@ -222,3 +222,4 @@ You are welcome <3
 |1.0.0|2019-01-14|First version, contain basic functions|
 |1.1.0|2019-08-19|Add removeByPattern function & update dependencies|
 |2.0.0|2019-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
+|2.0.1|2019-09-08|Refactor FileStore - use ES6 class instead prototype|
