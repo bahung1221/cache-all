@@ -175,13 +175,13 @@ const memoryCache = require('cache-all/memory')
 
 // ...
 fileCache.init({
-  expireIn: 60,
+  ttl: 60,
   file: {
     path: path.join(process.cwd(), 'storage', 'cache')
   }
 })
 memoryCache.init({
-  expireIn: 60,
+  ttl: 60,
 })
 // ...
 
