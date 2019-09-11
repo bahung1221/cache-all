@@ -1,7 +1,7 @@
 [![npm version](https://badge.fury.io/js/cache-all.svg)](https://www.npmjs.com/package/cache-all)
 [![Dependency Status](https://david-dm.org/bahung1221/cache-all.svg)](https://david-dm.org/bahung1221/cache-all)
 
-[![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://nodei.co/npm/cache-all.png?downloads=true)
+[![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://www.npmjs.com/package/cache-all)
 
 # cache-all
 :rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching),
