@@ -142,6 +142,35 @@ class RedisStore {
   }
 
   /**
+   * Get all entries in cache.
+   *
+   * @param {Function} fn
+   * @public
+   */
+  getAll(fn = noop) {
+    const entries = []
+
+    this._loop((err, total, key) => {
+      if (total === 0) {
+        fn(null, entries)
+      }
+      this.client.get(key, (err, data) => {
+        if (err) return fn(err)
+        if (!data) data = null
+        data = data.toString()
+        try {
+          entries.push({ key: key, value: JSON.parse(data) })
+          if (entries.length === total) {
+            fn(null, entries)
+          }
+        } catch (e) {
+          fn(e)
+        }
+      })
+    })
+  }
+
+  /**
    * Remove all cached entries that match the pattern
    *
    * @param {String} pattern

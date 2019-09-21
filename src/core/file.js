@@ -162,10 +162,10 @@ module.exports = class FileStore {
       cache = self.cache
 
     Object.keys(cache).forEach(function (entry) {
-      self.get(entry, function (err, result) {
+      self.get(entry, function (err, data) {
         if (err) return fn(err)
 
-        entries.push(result)
+        entries.push({ key: entry, value: data })
       })
     })
 

@@ -51,7 +51,7 @@ describe('File Cache Module', function() {
     it('should init successful use file engine', async function() {
       fileCache.init({
         engine: 'file',
-        expireIn: 60,
+        ttl: 60,
         file: { path: path.join(__dirname, '../storage/cache') }
       })
 
@@ -103,6 +103,16 @@ describe('File Cache Module', function() {
     it('should return true when check key "foo1"', async function() {
       let rs = await fileCache.has('foo1')
       assert.equal(rs, true, 'response not equal true')
+    })
+  })
+
+  describe('#getAll', function() {
+    it('should return array length  == 3 when getAll', async function() {
+      let rs = await fileCache.getAll()
+      if (rs.length === 3) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('Length is incorrect, result length is: ' + rs.length)
     })
   })
 
@@ -164,12 +174,35 @@ describe('In-memory Cache Module', function() {
       assert.ok(memoryCache.middleware)
     })
 
+    it('should return status 0 if cache module wasn\'t init before', async function () {
+      let rs = await memoryCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('response status not equal 0')
+    })
+
+    it('should return status 0 if cache module wasn\'t enable', async function () {
+      memoryCache.init({
+        isEnable: false
+      })
+
+      let rs = await memoryCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('response status not equal 0')
+    })
+
     it('should init successful use default config', async function() {
       memoryCache.init()
 
       try {
-        await memoryCache.get('key')
-        return Promise.resolve('OK')
+        let rs = await memoryCache.set('key', {foo: 'bar'})
+        if (rs.status === 1) {
+          return Promise.resolve('OK')
+        }
+        return Promise.reject('response status not equal 1')
       } catch (e) {
         Promise.reject('Init default fail')
       }
@@ -177,13 +210,15 @@ describe('In-memory Cache Module', function() {
 
     it('should init successful use in-memory engine', async function() {
       memoryCache.init({
-        engine: 'memory',
-        expireIn: 60,
+        ttl: 60,
       })
 
       try {
-        await memoryCache.get('key')
-        return Promise.resolve('Done')
+        let rs = await memoryCache.set('key', {foo: 'bar'})
+        if (rs.status === 1) {
+          return Promise.resolve('OK')
+        }
+        return Promise.reject('response status not equal 1')
       } catch (e) {
         Promise.reject('Init cache memory module fail')
       }
@@ -217,6 +252,16 @@ describe('In-memory Cache Module', function() {
     it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
       let rs = await memoryCache.get('foo1')
       assert.deepEqual(rs, {bar: 'baz'}, 'response not equal "{bar: \'baz\'}"')
+    })
+  })
+
+  describe('#getAll', function() {
+    it('should return array length  == 3 when getAll', async function() {
+      let rs = await memoryCache.getAll()
+      if (rs.length === 3) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('Length is incorrect, result length is: ' + rs.length)
     })
   })
 
@@ -289,12 +334,35 @@ describe('Redis Cache Module', function() {
       assert.ok(redisCache.middleware)
     })
 
+    it('should return status 0 if cache module wasn\'t init before', async function () {
+      let rs = await redisCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('response status not equal 0')
+    })
+
+    it('should return status 0 if cache module wasn\'t enable', async function () {
+      redisCache.init({
+        isEnable: false
+      })
+
+      let rs = await redisCache.set('key', {foo: 'bar'})
+      if (rs.status === 0) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('response status not equal 0')
+    })
+
     it('should init successful use default config', async function() {
       redisCache.init()
 
       try {
-        await redisCache.get('key')
-        return Promise.resolve('OK')
+        let rs = await redisCache.set('key', {foo: 'bar'})
+        if (rs.status === 1) {
+          return Promise.resolve('OK')
+        }
+        return Promise.reject('response status not equal 1')
       } catch (e) {
         Promise.reject('Init default fail')
       }
@@ -303,7 +371,7 @@ describe('Redis Cache Module', function() {
     it('should init successful use redis engine', async function() {
       redisCache.init({
         engine: 'redis',
-        expireIn: 90,
+        ttl: 90,
         redis: {
           port: 6379,
           host: '127.0.0.1'
@@ -346,6 +414,16 @@ describe('Redis Cache Module', function() {
     it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
       let rs = await redisCache.get('foo1')
       assert.deepEqual(rs, {bar: 'baz'}, 'response not equal "{bar: \'baz\'}"')
+    })
+  })
+
+  describe('#getAll', function() {
+    it('should return array length  == 3 when getAll', async function() {
+      let rs = await redisCache.getAll()
+      if (rs.length === 3) {
+        return Promise.resolve('OK')
+      }
+      return Promise.reject('Length is incorrect, result length is: ' + rs.length)
     })
   })
 

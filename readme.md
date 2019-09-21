@@ -1,5 +1,7 @@
 [![npm version](https://badge.fury.io/js/cache-all.svg)](https://www.npmjs.com/package/cache-all)
 [![Dependency Status](https://david-dm.org/bahung1221/cache-all.svg)](https://david-dm.org/bahung1221/cache-all)
+[![Build Status](https://travis-ci.com/bahung1221/cache-all.svg?branch=master)](https://travis-ci.com/bahung1221/cache-all)
+[![Coverage Status](https://coveralls.io/repos/github/bahung1221/cache-all/badge.svg?branch=master)](https://coveralls.io/github/bahung1221/cache-all?branch=master)
 
 [![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://www.npmjs.com/package/cache-all)
 
@@ -103,13 +105,23 @@ cache
 ```
 
 ### get(key)
-Get cache (if key doesn't exist, null will be return withou exception):
+Get cache (if key doesn't exist, null will be return):
 ```javascript
 const cache = require('cache-all')
 
 cache
   .get('foo')
   .then(result => console.log(result)) // 'bar'
+```
+
+### getAll()
+Get all cached entries as array:
+```javascript
+const cache = require('cache-all')
+
+cache
+  .getAll()
+  .then(result => console.log(result)) // [ { key: 'foo', value: 'bar'},... ]
 ```
 
 ### has(key)
@@ -223,3 +235,4 @@ You are welcome <3
 |1.1.0|2019-08-19|Add removeByPattern function & update dependencies|
 |2.0.0|2019-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
 |2.0.1|2019-09-08|Refactor FileStore - use ES6 class instead prototype|
+|2.0.2|2019-09-21|Add `getAll` method & integrate travis-ci & code coverage|
