@@ -9,5 +9,7 @@ node_js:
   - 10
   - 11
   - 12
+services:
+  - redis-server
 script: npm run test
 after_success: npm run coverage

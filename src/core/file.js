@@ -17,7 +17,7 @@ module.exports = class FileStore {
     self.path = options.path
 
     if (!Fs.existsSync(self.path)) {
-      Fs.mkdirSync(self.path)
+      Fs.ensureDirSync(self.path)
     }
 
     let cacheFiles = Fs.readdirSync(self.path)
