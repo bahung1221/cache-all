@@ -119,6 +119,27 @@ const cache = function (engine) {
   }
 
   /**
+   * Get all cached data
+   *
+   * @param key
+   * @return {Promise<*>}
+   */
+  async function getAll() {
+    // Check cache module instance was init yet
+    if (!instance) {
+      return null
+    }
+
+    return new Promise(((resolve, reject) => {
+      instance.getAll(function (error, value) {
+        if (error) return reject(error)
+
+        resolve(value)
+      })
+    }))
+  }
+
+  /**
    * Check whenever specific key was cached
    *
    * @param key
@@ -269,6 +290,7 @@ const cache = function (engine) {
     init,
     set,
     get,
+    getAll,
     has,
     remove,
     removeByPattern,

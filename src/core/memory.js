@@ -102,10 +102,9 @@ module.exports = class MemoryStore {
    */
   getAll(fn = noop) {
     const entries = []
-    const keys = this.client.keys()
 
     this.client.forEach((value, key, cache) => {
-      entries.push({ key: key, data: JSON.parse(value.value) })
+      entries.push({ key: key, value: JSON.parse(value.value) })
     })
 
     fn(null, entries)
