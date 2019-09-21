@@ -2,6 +2,7 @@
 [![Dependency Status](https://david-dm.org/bahung1221/cache-all.svg)](https://david-dm.org/bahung1221/cache-all)
 [![Build Status](https://travis-ci.com/bahung1221/cache-all.svg?branch=master)](https://travis-ci.com/bahung1221/cache-all)
 [![Coverage Status](https://coveralls.io/repos/github/bahung1221/cache-all/badge.svg?branch=master)](https://coveralls.io/github/bahung1221/cache-all?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ac857033d0e4472e9e9b5176a7c72fc4)](https://www.codacy.com/manual/bahung1221/cache-all?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bahung1221/cache-all&amp;utm_campaign=Badge_Grade)
 
 [![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://www.npmjs.com/package/cache-all)
 
