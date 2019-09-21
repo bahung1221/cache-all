@@ -1,12 +1,7 @@
-'use strict'
-
 /**
  * Module dependencies.
  */
 const redis = require('redis')
-const parser = require('parse-redis-url')
-
-const parse = parser(redis).parse
 const noop = () => {}
 
 class RedisStore {
@@ -17,13 +12,9 @@ class RedisStore {
    * @api public
    */
   constructor(options = {}) {
-    if ('string' === typeof options) {
-      options = parse(options)
-    }
-
     const { port, host, client, setex, password, database, prefix } = options
 
-    if ('function' === typeof setex) {
+    if (typeof setex === 'function') {
       this.client = options
     } else if (client) {
       this.client = client
@@ -82,7 +73,7 @@ class RedisStore {
   set(key, val, ttl, fn = noop) {
     const k = `${this.prefix}${key}`
 
-    if ('function' === typeof ttl) {
+    if (typeof ttl === 'function') {
       fn = ttl
       ttl = null
     }
@@ -98,7 +89,7 @@ class RedisStore {
       fn(null, val)
     }
 
-    if (-1 === ttl) {
+    if (ttl === -1) {
       this.client.set(k, val, cb)
     } else {
       this.client.setex(k, ttl || 60, val, cb)
@@ -133,7 +124,7 @@ class RedisStore {
             count = 0
             return fn(err)
           }
-          if (--count == 0) {
+          if (--count === 0) {
             fn(null, null)
           }
         })
@@ -151,6 +142,10 @@ class RedisStore {
     const entries = []
 
     this._loop((err, total, key) => {
+      if (err) {
+        fn(err, null)
+      }
+
       if (total === 0) {
         fn(null, entries)
       }

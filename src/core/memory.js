@@ -1,6 +1,4 @@
-'use strict'
-
-const lru = require('lru-cache')
+const LRU = require('lru-cache')
 const noop = () => {}
 
 module.exports = class MemoryStore {
@@ -11,7 +9,7 @@ module.exports = class MemoryStore {
    * @api public
    */
   constructor(options = {}) {
-    this.client = new lru(options.ttl || 100)
+    this.client = new LRU(options.ttl || 100)
   }
 
   /**
@@ -54,14 +52,14 @@ module.exports = class MemoryStore {
 
     if (typeof val === 'undefined') return fn()
 
-    const expire = -1 === ttl
-        ? -1
-        : Date.now() + (ttl || 60) * 1000
+    const expire = ttl === -1
+      ? -1
+      : Date.now() + (ttl || 60) * 1000
 
     try {
       data = {
         value: JSON.stringify(val),
-        expire
+        expire,
       }
     } catch (e) {
       return setImmediate(fn.bind(null, e))

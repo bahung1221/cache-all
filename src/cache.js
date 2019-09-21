@@ -34,12 +34,12 @@ const cache = function (engine) {
     isEnable: true,
     ttl: 90,
     file: {
-      path: path.join(process.cwd(), 'storage', 'cache')
+      path: path.join(process.cwd(), 'storage', 'cache'),
     },
     redis: {
       port: 6379,
       host: '127.0.0.1',
-    }
+    },
   }
   /**
    * Init cache engine
@@ -81,16 +81,16 @@ const cache = function (engine) {
   async function set(key, value, time) {
     // Check cache module instance was init yet
     if (!instance) {
-      return {status: 0}
+      return { status: 0 }
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.set(key, value, time || instance.config.ttl, function (error) {
         if (error) return reject(error)
 
         resolve({ status: 1 })
       })
-    }))
+    })
   }
 
   /**
@@ -105,13 +105,13 @@ const cache = function (engine) {
       return null
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
 
         resolve(value)
       })
-    }))
+    })
   }
 
   /**
@@ -126,13 +126,13 @@ const cache = function (engine) {
       return null
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.getAll(function (error, value) {
         if (error) return reject(error)
 
         resolve(value)
       })
-    }))
+    })
   }
 
   /**
@@ -148,13 +148,13 @@ const cache = function (engine) {
       return false
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.get(key, function (error, value) {
         if (error) return reject(error)
 
-        resolve(!value ? false : true)
+        resolve(!!value)
       })
-    }))
+    })
   }
 
   /**
@@ -166,16 +166,16 @@ const cache = function (engine) {
   async function remove(key) {
     // Check cache module instance was init yet
     if (!instance) {
-      return {status: 0}
+      return { status: 0 }
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.remove(key, function (err) {
         if (err) return reject(err)
 
         resolve({ status: 1 })
       })
-    }))
+    })
   }
 
   /**
@@ -189,13 +189,13 @@ const cache = function (engine) {
       return { status: 0 }
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.removeByPattern(pattern, function (err) {
         if (err) return reject(err)
 
         resolve({ status: 1 })
       })
-    }))
+    })
   }
 
   /**
@@ -206,16 +206,16 @@ const cache = function (engine) {
   async function clear() {
     // Check cache module instance was init yet
     if (!instance) {
-      return {status: 0}
+      return { status: 0 }
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       instance.clear(function (err) {
         if (err) return reject(err)
 
         resolve({ status: 1 })
       })
-    }))
+    })
   }
 
   /**

@@ -1,5 +1,3 @@
-'use strict'
-
 const Fs = require('fs-extra')
 const sanitize = require('sanitize-filename')
 const path = require('path')
@@ -89,7 +87,7 @@ module.exports = class FileStore {
     try {
       data = {
         value: JSON.stringify(val),
-        expire: JSON.stringify(Date.now() + ttl)
+        expire: JSON.stringify(Date.now() + ttl),
       }
     } catch (e) {
       return fn(e)
