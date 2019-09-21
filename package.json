@@ -4,7 +4,8 @@
   "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache)",
   "main": "./memory.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,8 @@
     "sanitize-filename": "^1.6.2"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "coveralls": "^3.0.6",
+    "mocha": "^5.2.0",
+    "nyc": "^14.1.1"
   }
 }
