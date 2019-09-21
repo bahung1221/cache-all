@@ -187,8 +187,8 @@ describe('In-memory Cache Module', function() {
         isEnable: false
       })
 
-      let rs = await memoryCache.set('key', {foo: 'bar'})
-      if (rs.status === 0) {
+      let rs = await memoryCache.get('key')
+      if (rs === null) {
         return Promise.resolve('OK')
       }
       return Promise.reject('response status not equal 0')

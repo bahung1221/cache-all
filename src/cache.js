@@ -50,15 +50,11 @@ const cache = function (engine) {
     config = Object.assign({}, baseConfig, config)
 
     // If cache was disable (development purpose, etc...)
-    if (!config.isEnable) {
-      return
-    }
+    if (!config.isEnable) return
 
     // NOTE: cheat for sync expireIn with ttl
     // expireIn was deprecate from v2.0.0, use ttl instead
-    if (config.expireIn) {
-      config.ttl = config.expireIn
-    }
+    if (config.expireIn) config.ttl = config.expireIn
 
     switch (engine) {
       case 'file':
@@ -269,21 +265,6 @@ const cache = function (engine) {
       .createHash('md5')
       .update(fingerprint)
       .digest('hex')
-  }
-
-  /**
-   * Throw error when cache module was use in incorrect way
-   *
-   * @param type
-   * @private
-   */
-  function _throwError(type) {
-    switch (type) {
-      case 'init':
-        throw new Error('Cache module must be init first!')
-      default:
-        throw new Error('Cache module must be init first!')
-    }
   }
 
   return {
