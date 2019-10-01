@@ -239,11 +239,18 @@ const cache = function (engine) {
         return res.json(cached)
       }
 
-      // Get response data and set cache before response to client
+      // Get response data and set cache before response to client (json)
       res.sendJsonResponse = res.json
       res.json = async function (data) {
         await set(key, data, time || instance.config.ttl)
         res.sendJsonResponse(data)
+      }
+
+      // Get response data and set cache before response to client (plain text)
+      res.sendPlainTextResponse = res.send
+      res.send = async function (data) {
+        await set(key, data, time || instance.config.ttl)
+        res.sendPlainTextResponse(data)
       }
       next()
     }
