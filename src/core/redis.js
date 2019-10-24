@@ -37,7 +37,9 @@ class RedisStore {
       })
     }
 
-    this.prefix = prefix || 'cacheall:'
+    const isPrefixEmpty = (prefix === '')
+
+    this.prefix = isPrefixEmpty ? '' : 'cacheall:'
   }
 
   /**
