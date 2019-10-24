@@ -82,6 +82,7 @@ Just config for engine that will be use
     host: '127.0.0.1',
     // password: 'yourpass',
     // database: 0,
+    // prefix, // default is `cacheall:`
   }
 }
 ```
@@ -237,3 +238,4 @@ You are welcome <3
 |2.0.0|2019-09-05|Re-structure (DRY) & remove `mkdirp` dependency |
 |2.0.1|2019-09-08|Refactor FileStore - use ES6 class instead prototype|
 |2.0.2|2019-09-21|Add `getAll` method & integrate travis-ci & code coverage|
+|2.0.6|2019-10-24|Allow redis empty prefix [PR#15](https://github.com/bahung1221/cache-all/pull/15)|
