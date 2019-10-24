@@ -75,11 +75,6 @@ class RedisStore {
   set(key, val, ttl, fn = noop) {
     const k = `${this.prefix}${key}`
 
-    if (typeof ttl === 'function') {
-      fn = ttl
-      ttl = null
-    }
-
     try {
       val = JSON.stringify(val)
     } catch (e) {
