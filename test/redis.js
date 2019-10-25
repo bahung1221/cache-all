@@ -93,7 +93,34 @@ describe('Redis Cache Module', function() {
       }
     })
 
-    it('should init successful with defaul prefix', async function() {
+    it('should init successful with custom prefix', async function() {
+      const options = {
+        engine: 'redis',
+        ttl: 90,
+        redis: {
+          port: 6379,
+          host: '127.0.0.1',
+          prefix: 'custom:'
+        },
+      }
+      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+
+      redisCache.init(options)
+      try {
+        await redisCache.set('prefixKey', 'prefixValue')
+        return new Promise((resolve, reject) => {
+          redisClient.get('custom:prefixKey', (err, data) => {
+            if (err || !data) return reject('Init cache redis module with custom prefix fail')
+
+            resolve('Done')
+          })
+        })
+      } catch (e) {
+        Promise.reject('Init cache memory module fail')
+      }
+    })
+
+    it('should init successful with default prefix', async function() {
       const options = {
         engine: 'redis',
         ttl: 90,

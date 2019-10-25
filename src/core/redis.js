@@ -39,7 +39,7 @@ class RedisStore {
 
     const isPrefixEmpty = (prefix === '')
 
-    this.prefix = isPrefixEmpty ? '' : 'cacheall:'
+    this.prefix = isPrefixEmpty ? '' : (prefix || 'cacheall:')
   }
 
   /**
