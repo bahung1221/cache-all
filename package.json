@@ -2,7 +2,7 @@
   "name": "cache-all",
   "version": "2.0.6",
   "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache)",
-  "main": "./memory.js",
+  "main": "./index.js",
   "scripts": {
     "lint": "eslint ./src --fix",
     "test": "nyc mocha --exit",
