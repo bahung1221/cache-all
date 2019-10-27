@@ -2,6 +2,12 @@ const assert = require('assert')
 const path = require('path')
 const fileCache = require('../file')
 
+afterEach(async function() {
+  // Cleanup
+  await fileCache.clear()
+  return Promise.resolve()
+})
+
 describe('File Cache Module', function() {
   describe('#init()', function() {
     it('should have main methods', function () {
@@ -82,32 +88,35 @@ describe('File Cache Module', function() {
 
   describe('#get', function() {
     it('should return "bar" when get key "foo" successful', async function() {
+      await fileCache.set('foo', 'bar')
       let rs = await fileCache.get('foo')
+      console.log(rs);
+
       assert.equal(rs, 'bar', 'response not equal "bar"')
     })
 
-    it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
-      let rs = await fileCache.get('foo1')
+    it('should return "{bar: \'baz\'}" when get key "foo" successful', async function() {
+      await fileCache.set('foo', { bar: 'baz' })
+      let rs = await fileCache.get('foo')
       assert.deepEqual(rs, { bar: 'baz' }, 'response not equal "{bar: \'baz\'}"')
     })
   })
 
   describe('#has', function() {
     it('should return true when check key "foo"', async function() {
+      await fileCache.set('foo', 'bar')
       let rs = await fileCache.has('foo')
-      assert.equal(rs, true, 'response not equal true')
-    })
-
-    it('should return true when check key "foo1"', async function() {
-      let rs = await fileCache.has('foo1')
       assert.equal(rs, true, 'response not equal true')
     })
   })
 
   describe('#getAll', function() {
-    it('should return array length  == 3 when getAll', async function() {
+    it('should return array length  == 2 when getAll', async function() {
+      await fileCache.set('foo', 'bar')
+      await fileCache.set('foo1', 'baz')
+
       let rs = await fileCache.getAll()
-      if (rs.length === 3) {
+      if (rs.length === 2) {
         return Promise.resolve('OK')
       }
       return Promise.reject('Length is incorrect, result length is: ' + rs.length)

@@ -1,6 +1,12 @@
 const assert = require('assert')
 const memoryCache = require('../memory')
 
+afterEach(async function() {
+  // Cleanup
+  await memoryCache.clear()
+  return Promise.resolve()
+})
+
 describe('In-memory Cache Module', function() {
   describe('#init()', function() {
     it('should have main methods', function () {
@@ -84,20 +90,25 @@ describe('In-memory Cache Module', function() {
 
   describe('#get', function() {
     it('should return "bar" when get key "foo" successful', async function() {
+      await memoryCache.set('foo', 'bar')
       let rs = await memoryCache.get('foo')
       assert.equal(rs, 'bar', 'response not equal "bar"')
     })
 
-    it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
-      let rs = await memoryCache.get('foo1')
+    it('should return "{bar: \'baz\'}" when get key "foo" successful', async function() {
+      await memoryCache.set('foo', { bar: 'baz' })
+      let rs = await memoryCache.get('foo')
       assert.deepEqual(rs, { bar: 'baz' }, 'response not equal "{bar: \'baz\'}"')
     })
   })
 
   describe('#getAll', function() {
-    it('should return array length  == 3 when getAll', async function() {
+    it('should return array length  == 2 when getAll', async function() {
+      await memoryCache.set('foo', 'bar')
+      await memoryCache.set('foo1', 'baz')
+
       let rs = await memoryCache.getAll()
-      if (rs.length === 3) {
+      if (rs.length === 2) {
         return Promise.resolve('OK')
       }
       return Promise.reject('Length is incorrect, result length is: ' + rs.length)
@@ -106,12 +117,9 @@ describe('In-memory Cache Module', function() {
 
   describe('#has', function() {
     it('should return true when check key "foo"', async function() {
-      let rs = await memoryCache.has('foo')
-      assert.equal(rs, true, 'response not equal true')
-    })
+      await memoryCache.set('foo', 'bar')
 
-    it('should return true when check key "foo1"', async function() {
-      let rs = await memoryCache.has('foo1')
+      let rs = await memoryCache.has('foo')
       assert.equal(rs, true, 'response not equal true')
     })
   })

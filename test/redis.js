@@ -2,6 +2,12 @@ const redis = require('redis')
 const assert = require('assert')
 const redisCache = require('../redis')
 
+afterEach(async function() {
+  // Cleanup
+  await redisCache.clear()
+  return Promise.resolve()
+})
+
 describe('Redis Cache Module', function() {
   describe('#init()', function() {
     it('should have main methods', function () {
@@ -62,7 +68,7 @@ describe('Redis Cache Module', function() {
         await redisCache.get('key')
         return Promise.resolve('Done')
       } catch (e) {
-        Promise.reject('Init cache memory module fail')
+        Promise.reject('Init cache redis module fail')
       }
     })
 
@@ -89,7 +95,7 @@ describe('Redis Cache Module', function() {
           })
         })
       } catch (e) {
-        Promise.reject('Init cache memory module fail')
+        Promise.reject('Init cache redis module fail')
       }
     })
 
@@ -116,7 +122,7 @@ describe('Redis Cache Module', function() {
           })
         })
       } catch (e) {
-        Promise.reject('Init cache memory module fail')
+        Promise.reject('Init cache redis module fail')
       }
     })
 
@@ -142,7 +148,7 @@ describe('Redis Cache Module', function() {
           })
         })
       } catch (e) {
-        Promise.reject('Init cache memory module fail')
+        Promise.reject('Init cache redis module fail')
       }
     })
   })
@@ -167,20 +173,27 @@ describe('Redis Cache Module', function() {
 
   describe('#get', function() {
     it('should return "bar" when get key "foo" successful', async function() {
+      await redisCache.set('foo', 'bar')
+
       let rs = await redisCache.get('foo')
       assert.equal(rs, 'bar', 'response not equal "bar"')
     })
 
-    it('should return "{bar: \'baz\'}" when get key "foo1" successful', async function() {
-      let rs = await redisCache.get('foo1')
+    it('should return "{bar: \'baz\'}" when get key "foo" successful', async function() {
+      await redisCache.set('foo', { bar: 'baz' })
+
+      let rs = await redisCache.get('foo')
       assert.deepEqual(rs, { bar: 'baz' }, 'response not equal "{bar: \'baz\'}"')
     })
   })
 
   describe('#getAll', function() {
-    it('should return array length  == 4 when getAll', async function() {
+    it('should return array length == 2 when getAll', async function() {
+      await redisCache.set('foo', 'bar')
+      await redisCache.set('foo1', 'baz')
+
       let rs = await redisCache.getAll()
-      if (rs.length === 4) {
+      if (rs.length === 2) {
         return Promise.resolve('OK')
       }
       return Promise.reject('Length is incorrect, result length is: ' + rs.length)
@@ -189,12 +202,9 @@ describe('Redis Cache Module', function() {
 
   describe('#has', function() {
     it('should return true when check key "foo"', async function() {
-      let rs = await redisCache.has('foo')
-      assert.equal(rs, true, 'response not equal true')
-    })
+      await redisCache.set('foo', 'bar')
 
-    it('should return true when check key "foo1"', async function() {
-      let rs = await redisCache.has('foo1')
+      let rs = await redisCache.has('foo')
       assert.equal(rs, true, 'response not equal true')
     })
   })
