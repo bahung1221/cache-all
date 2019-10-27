@@ -13,18 +13,32 @@ module.exports = class FileStore {
   constructor(options) {
     let self = this
     self.path = options.path
-
-    if (!Fs.existsSync(self.path)) {
-      Fs.ensureDirSync(self.path)
-    }
-
-    let cacheFiles = Fs.readdirSync(self.path)
     self.cache = {}
-    cacheFiles.forEach(function(file) {
-      file = file.replace('.json', '')
 
-      self.cache[file] = true
+    Fs.exists(self.path, (isExists) => {
+      if (!isExists) {
+        Fs.ensureDir(self.path, (err) => {
+          if (err) throw new Error(`ensureDir error ${err}`)
+
+          readDir(self)
+        })
+      } else {
+        readDir(self)
+      }
     })
+
+    function readDir(self) {
+      Fs.readdir(self.path, (err, cacheFiles) => {
+        if (err) throw new Error(`readDir error ${err}`)
+
+        self.cache = {}
+        cacheFiles.forEach(function(file) {
+          file = file.replace('.json', '')
+
+          self.cache[file] = true
+        })
+      })
+    }
   }
 
   /**
@@ -37,34 +51,38 @@ module.exports = class FileStore {
     key = sanitize(key)
 
     let val = null,
-      data = null,
       cacheFile = path.join(this.path, key + '.json')
 
-    if (Fs.existsSync(cacheFile)) {
-      data = Fs.readFileSync(cacheFile)
-      data = JSON.parse(data)
-    } else {
-      return fn(null, null)
-    }
+    Fs.exists(cacheFile, (isExists) => {
+      if (isExists) {
+        Fs.readFile(cacheFile, (err, data) => {
+          if (err) return fn(err)
 
-    if (!this.cache[key]) {
-      return fn(null, null)
-    }
+          data = JSON.parse(data)
 
-    if (!data) return fn(null, data)
-    if (data.expire < Date.now()) {
-      this.remove(key)
-      return fn(null, null)
-    }
+          if (!this.cache[key]) {
+            return fn(null, null)
+          }
 
-    try {
-      val = JSON.parse(data.value)
-    } catch (e) {
-      return fn(e)
-    }
+          if (!data) return fn(null, data)
+          if (data.expire < Date.now()) {
+            this.remove(key)
+            return fn(null, null)
+          }
 
-    process.nextTick(function tick() {
-      fn(null, val)
+          try {
+            val = JSON.parse(data.value)
+          } catch (e) {
+            return fn(e)
+          }
+
+          process.nextTick(function tick() {
+            fn(null, val)
+          })
+        })
+      } else {
+        return fn(null, null)
+      }
     })
   }
 
@@ -94,9 +112,9 @@ module.exports = class FileStore {
     }
 
     let cacheFile = path.join(this.path, key + '.json')
-    Fs.writeFileSync(cacheFile, JSON.stringify(data, null, 4))
+    Fs.writeFile(cacheFile, JSON.stringify(data, null, 4), (err) => {
+      if (err) return fn(err)
 
-    process.nextTick(() => {
       this.cache[key] = true
       fn(null, val)
     })
@@ -112,21 +130,25 @@ module.exports = class FileStore {
     key = sanitize(key)
     let cacheFile = path.join(this.path, key + '.json')
 
-    if (!Fs.existsSync(cacheFile)) {
-      delete this.cache[key]
-      return fn()
-    }
+    Fs.exists(cacheFile, (isExists) => {
+      if (!isExists) {
+        delete this.cache[key]
+        return fn()
+      }
 
-    try {
-      Fs.removeSync(cacheFile)
-    } catch (e) {
-      return fn(e)
-    }
+      try {
+        Fs.remove(cacheFile, (err) => {
+          if (err) return fn(err)
 
-    process.nextTick(() => {
-      delete this.cache[key]
+          process.nextTick(() => {
+            delete this.cache[key]
 
-      fn(null)
+            fn(null)
+          })
+        })
+      } catch (err) {
+        return fn(err)
+      }
     })
   }
 
@@ -137,16 +159,14 @@ module.exports = class FileStore {
    * @api public
    */
   clear(fn = noop) {
-    try {
-      Fs.removeSync(this.path)
-      Fs.mkdirSync(this.path)
-    } catch (e) {
-      return fn(e)
-    }
+    Fs.remove(this.path, (err) => {
+      if (err) return fn(err)
 
-    process.nextTick(() => {
-      this.cache = {}
-      fn(null)
+      Fs.mkdir(this.path, () => {
+        if (err) return fn(err)
+        this.cache = {}
+        fn(null)
+      })
     })
   }
 
@@ -159,16 +179,16 @@ module.exports = class FileStore {
       entries = [],
       cache = self.cache
 
-    Object.keys(cache).forEach(function (entry) {
+    const keys = Object.keys(cache)
+
+    keys.forEach((entry, index) => {
       self.get(entry, function (err, data) {
         if (err) return fn(err)
 
         entries.push({ key: entry, value: data })
-      })
-    })
 
-    process.nextTick(function () {
-      fn(null, entries)
+        if (index === keys.length - 1) fn(null, entries)
+      })
     })
   }
 
@@ -184,24 +204,28 @@ module.exports = class FileStore {
       clearedKeys = []
 
     try {
-      let files = Fs.readdirSync(storagePath)
+      Fs.readdir(storagePath, (err, files) => {
+        if (err) return fn(err)
 
-      files.forEach(file => {
-        if (file.match(pattern)) {
-          Fs.removeSync(path.join(storagePath, file))
-          clearedKeys.push(file.split('.json')[0])
-        }
+        files.forEach(file => {
+          if (file.match(pattern)) {
+            Fs.remove(path.join(storagePath, file), (err) => {
+              if (err) return fn(err)
+
+              clearedKeys.push(file.split('.json')[0])
+              process.nextTick(function tick() {
+                clearedKeys.forEach(key => {
+                  self.cache[key] = null
+                })
+
+                fn(null)
+              })
+            })
+          }
+        })
       })
     } catch (e) {
       return fn(e)
     }
-
-    process.nextTick(function tick() {
-      clearedKeys.forEach(key => {
-        self.cache[key] = null
-      })
-
-      fn(null)
-    })
   }
 }
