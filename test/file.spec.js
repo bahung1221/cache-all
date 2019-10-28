@@ -125,7 +125,9 @@ describe('File Cache Module', function() {
 
   describe('#remove', function() {
     it('should return status 1 when remove "foo" key', async function () {
-      let rs = await fileCache.remove('foo', 'bar')
+      await fileCache.set('foo', 'bar')
+
+      let rs = await fileCache.remove('foo')
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }

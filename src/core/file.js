@@ -149,19 +149,15 @@ module.exports = class FileStore {
         return fn()
       }
 
-      try {
-        Fs.remove(cacheFile, (err) => {
-          if (err) return fn(err)
+      Fs.remove(cacheFile, (err) => {
+        if (err) return fn(err)
 
-          process.nextTick(() => {
-            delete this.cache[key]
+        process.nextTick(() => {
+          delete this.cache[key]
 
-            fn(null)
-          })
+          fn(null)
         })
-      } catch (err) {
-        return fn(err)
-      }
+      })
     })
   }
 
@@ -216,29 +212,25 @@ module.exports = class FileStore {
       storagePath = self.path,
       clearedKeys = []
 
-    try {
-      Fs.readdir(storagePath, (err, files) => {
-        if (err) return fn(err)
+    Fs.readdir(storagePath, (err, files) => {
+      if (err) return fn(err)
 
-        files.forEach(file => {
-          if (file.match(pattern)) {
-            Fs.remove(path.join(storagePath, file), (err) => {
-              if (err) return fn(err)
+      files.forEach(file => {
+        if (file.match(pattern)) {
+          Fs.remove(path.join(storagePath, file), (err) => {
+            if (err) return fn(err)
 
-              clearedKeys.push(file.split('.json')[0])
-              process.nextTick(function tick() {
-                clearedKeys.forEach(key => {
-                  self.cache[key] = null
-                })
-
-                fn(null)
+            clearedKeys.push(file.split('.json')[0])
+            process.nextTick(function tick() {
+              clearedKeys.forEach(key => {
+                self.cache[key] = null
               })
+
+              fn(null)
             })
-          }
-        })
+          })
+        }
       })
-    } catch (e) {
-      return fn(e)
-    }
+    })
   }
 }
