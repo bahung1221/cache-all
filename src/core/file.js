@@ -29,16 +29,16 @@ module.exports = class FileStore {
         Fs.ensureDir(self.path, (err) => {
           if (err) throw new Error(`ensureDir error ${err}`)
 
-          readDir(self)
+          readDir(self, fn)
         })
       } else {
-        readDir(self)
+        readDir(self, fn)
       }
     })
 
-    function readDir(self) {
+    function readDir(self, fn) {
       Fs.readdir(self.path, (err, cacheFiles) => {
-        if (err) throw new Error(`readDir error ${err}`)
+        if (err) return fn(err)
 
         self.cache = {}
         cacheFiles.forEach(function(file) {
@@ -48,7 +48,7 @@ module.exports = class FileStore {
         })
 
         process.nextTick(function tick() {
-          fn(null, null)
+          fn(null)
         })
       })
     }
