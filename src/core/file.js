@@ -66,16 +66,16 @@ module.exports = class FileStore {
     let val = null,
       cacheFile = path.join(this.path, key + '.json')
 
+    if (!this.cache[key]) {
+      return fn(null, null)
+    }
+
     Fs.exists(cacheFile, (isExists) => {
       if (isExists) {
         Fs.readFile(cacheFile, (err, data) => {
           if (err) return fn(err)
 
           data = JSON.parse(data)
-
-          if (!this.cache[key]) {
-            return fn(null, null)
-          }
 
           if (!data) return fn(null, data)
           if (data.expire < Date.now()) {
@@ -94,6 +94,7 @@ module.exports = class FileStore {
           })
         })
       } else {
+        delete this.cache[key]
         return fn(null, null)
       }
     })
@@ -196,7 +197,7 @@ module.exports = class FileStore {
 
         entries.push({ key: entry, value: data })
 
-        if (index === keys.length - 1) fn(null, entries)
+        if (entries.length === keys.length) fn(null, entries)
       })
     })
   }
