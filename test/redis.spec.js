@@ -2,6 +2,32 @@ const redis = require('redis')
 const assert = require('assert')
 const redisCache = require('../redis')
 
+const defaultConfig = {
+  engine: 'redis',
+  ttl: 90,
+  redis: {
+    port: 6379,
+    host: '127.0.0.1',
+    database: 3,
+    password: 'secret',
+  },
+}
+
+function startRedisClient(options) {
+  const redisClient = redis.createClient(options.redis.port, options.redis.host)
+  return new Promise((resolve, reject) => {
+    redisClient.auth(options.redis.password, (err) => {
+      if (err) return reject(err)
+
+      redisClient.select(options.redis.database, (err) => {
+        if (err) return reject(err)
+
+        resolve(redisClient)
+      })
+    })
+  })
+}
+
 afterEach(async function() {
   // Cleanup
   await redisCache.clear()
@@ -29,7 +55,7 @@ describe('Redis Cache Module', function() {
     })
 
     it('should return status 0 if cache module wasn\'t enable', async function () {
-      redisCache.init({
+      await redisCache.init({
         isEnable: false,
       })
 
@@ -41,7 +67,8 @@ describe('Redis Cache Module', function() {
     })
 
     it('should init successful use default config', async function() {
-      redisCache.init()
+      const options = JSON.parse(JSON.stringify(defaultConfig))
+      await redisCache.init(options)
 
       try {
         let rs = await redisCache.set('key', { foo: 'bar' })
@@ -54,102 +81,55 @@ describe('Redis Cache Module', function() {
       }
     })
 
-    it('should init successful use redis engine', async function() {
-      redisCache.init({
-        engine: 'redis',
-        ttl: 90,
-        redis: {
-          port: 6379,
-          host: '127.0.0.1',
-        },
-      })
-
-      try {
-        await redisCache.get('key')
-        return Promise.resolve('Done')
-      } catch (e) {
-        Promise.reject('Init cache redis module fail')
-      }
-    })
-
     it('should init successful with empty prefix', async function() {
-      const options = {
-        engine: 'redis',
-        ttl: 90,
-        redis: {
-          port: 6379,
-          host: '127.0.0.1',
-          prefix: '',
-        },
-      }
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const options = JSON.parse(JSON.stringify(defaultConfig))
+      const redisClient = await startRedisClient(options)
 
-      redisCache.init(options)
-      try {
-        await redisCache.set('prefixKey', 'prefixValue')
-        return new Promise((resolve, reject) => {
-          redisClient.get('prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with empty prefix fail')
+      options.redis.prefix = ''
+      await redisCache.init(options)
+      await redisCache.set('prefixKey', 'prefixValue')
 
-            resolve('Done')
-          })
+      return new Promise((resolve, reject) => {
+        redisClient.get('prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with custom prefix fail')
+
+          resolve('Done')
         })
-      } catch (e) {
-        Promise.reject('Init cache redis module fail')
-      }
+      })
     })
 
     it('should init successful with custom prefix', async function() {
-      const options = {
-        engine: 'redis',
-        ttl: 90,
-        redis: {
-          port: 6379,
-          host: '127.0.0.1',
-          prefix: 'custom:'
-        },
-      }
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const options = JSON.parse(JSON.stringify(defaultConfig))
+      const redisClient = await startRedisClient(options)
 
-      redisCache.init(options)
-      try {
-        await redisCache.set('prefixKey', 'prefixValue')
-        return new Promise((resolve, reject) => {
-          redisClient.get('custom:prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with custom prefix fail')
+      options.redis.prefix = 'custom:'
 
-            resolve('Done')
-          })
+      await redisCache.init(options)
+      await redisCache.set('prefixKey', 'prefixValue')
+
+      return new Promise((resolve, reject) => {
+        redisClient.get('custom:prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with custom prefix fail')
+
+          resolve('Done')
         })
-      } catch (e) {
-        Promise.reject('Init cache redis module fail')
-      }
+      })
     })
 
     it('should init successful with default prefix', async function() {
-      const options = {
-        engine: 'redis',
-        ttl: 90,
-        redis: {
-          port: 6379,
-          host: '127.0.0.1',
-        },
-      }
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const options = JSON.parse(JSON.stringify(defaultConfig))
+      const redisClient = await startRedisClient(options)
 
-      redisCache.init(options)
-      try {
-        await redisCache.set('prefixKey', 'prefixValue')
-        return new Promise((resolve, reject) => {
-          redisClient.get('cacheall:prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with empty prefix fail')
+      await redisCache.init(options)
+      await redisCache.set('prefixKey', 'prefixValue')
 
-            resolve('Done')
-          })
+      return new Promise((resolve, reject) => {
+        redisClient.get('cacheall:prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with empty prefix fail')
+
+          resolve('Done')
         })
-      } catch (e) {
-        Promise.reject('Init cache redis module fail')
-      }
+      })
     })
   })
 
@@ -211,7 +191,9 @@ describe('Redis Cache Module', function() {
 
   describe('#remove', function() {
     it('should return status 1 when remove "foo" key', async function () {
-      let rs = await redisCache.remove('foo', 'bar')
+      await redisCache.set('foo', 'bar')
+
+      let rs = await redisCache.remove('foo')
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }

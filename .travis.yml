@@ -2,7 +2,6 @@ language: node_js
 os: linux
 node_js:
   - 8
-services:
-  - redis-server
+before_script: sudo redis-server /etc/redis/redis.conf --requirepass 'secret'
 script: npm run test
 after_success: npm run coverage

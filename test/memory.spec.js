@@ -1,27 +1,26 @@
 const assert = require('assert')
-const path = require('path')
-const fileCache = require('../file')
+const memoryCache = require('../memory')
 
 afterEach(async function() {
   // Cleanup
-  await fileCache.clear()
+  await memoryCache.clear()
   return Promise.resolve()
 })
 
-describe('File Cache Module', function() {
+describe('In-memory Cache Module', function() {
   describe('#init()', function() {
     it('should have main methods', function () {
-      assert.ok(fileCache.set)
-      assert.ok(fileCache.get)
-      assert.ok(fileCache.has)
-      assert.ok(fileCache.remove)
-      assert.ok(fileCache.removeByPattern)
-      assert.ok(fileCache.clear)
-      assert.ok(fileCache.middleware)
+      assert.ok(memoryCache.set)
+      assert.ok(memoryCache.get)
+      assert.ok(memoryCache.has)
+      assert.ok(memoryCache.remove)
+      assert.ok(memoryCache.removeByPattern)
+      assert.ok(memoryCache.clear)
+      assert.ok(memoryCache.middleware)
     })
 
     it('should return status 0 if cache module wasn\'t init before', async function () {
-      let rs = await fileCache.set('key', { foo: 'bar' })
+      let rs = await memoryCache.set('key', { foo: 'bar' })
       if (rs.status === 0) {
         return Promise.resolve('OK')
       }
@@ -29,48 +28,51 @@ describe('File Cache Module', function() {
     })
 
     it('should return status 0 if cache module wasn\'t enable', async function () {
-      fileCache.init({
+      await memoryCache.init({
         isEnable: false,
       })
 
-      let rs = await fileCache.set('key', { foo: 'bar' })
-      if (rs.status === 0) {
+      let rs = await memoryCache.get('key')
+      if (rs === null) {
         return Promise.resolve('OK')
       }
       return Promise.reject('response status not equal 0')
     })
 
     it('should init successful use default config', async function() {
-      fileCache.init({
-        isEnable: true,
-      })
+      await memoryCache.init()
 
-      let rs = await fileCache.set('key', { foo: 'bar' })
-      if (rs.status === 1) {
-        return Promise.resolve('OK')
+      try {
+        let rs = await memoryCache.set('key', { foo: 'bar' })
+        if (rs.status === 1) {
+          return Promise.resolve('OK')
+        }
+        return Promise.reject('response status not equal 1')
+      } catch (e) {
+        Promise.reject('Init default fail')
       }
-      return Promise.reject('response status not equal 1')
     })
 
-    it('should init successful use file engine', async function() {
-      fileCache.init({
-        engine: 'file',
+    it('should init successful use in-memory engine', async function() {
+      await memoryCache.init({
         ttl: 60,
-        file: { path: path.join(__dirname, '../storage/cache') },
       })
 
       try {
-        await fileCache.get('key')
-        return Promise.resolve('OK')
+        let rs = await memoryCache.set('key', { foo: 'bar' })
+        if (rs.status === 1) {
+          return Promise.resolve('OK')
+        }
+        return Promise.reject('response status not equal 1')
       } catch (e) {
-        Promise.reject('Init cache file module fail')
+        Promise.reject('Init cache memory module fail')
       }
     })
   })
 
   describe('#set', function() {
     it('should return status 1 when set string data cache successful', async function() {
-      let rs = await fileCache.set('foo', 'bar')
+      let rs = await memoryCache.set('foo', 'bar')
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }
@@ -78,7 +80,7 @@ describe('File Cache Module', function() {
     })
 
     it('should return status 1 when set object data cache successful', async function() {
-      let rs = await fileCache.set('foo1', { bar: 'baz' })
+      let rs = await memoryCache.set('foo1', { bar: 'baz' })
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }
@@ -88,34 +90,24 @@ describe('File Cache Module', function() {
 
   describe('#get', function() {
     it('should return "bar" when get key "foo" successful', async function() {
-      await fileCache.set('foo', 'bar')
-      let rs = await fileCache.get('foo')
-      console.log(rs);
-
+      await memoryCache.set('foo', 'bar')
+      let rs = await memoryCache.get('foo')
       assert.equal(rs, 'bar', 'response not equal "bar"')
     })
 
     it('should return "{bar: \'baz\'}" when get key "foo" successful', async function() {
-      await fileCache.set('foo', { bar: 'baz' })
-      let rs = await fileCache.get('foo')
+      await memoryCache.set('foo', { bar: 'baz' })
+      let rs = await memoryCache.get('foo')
       assert.deepEqual(rs, { bar: 'baz' }, 'response not equal "{bar: \'baz\'}"')
-    })
-  })
-
-  describe('#has', function() {
-    it('should return true when check key "foo"', async function() {
-      await fileCache.set('foo', 'bar')
-      let rs = await fileCache.has('foo')
-      assert.equal(rs, true, 'response not equal true')
     })
   })
 
   describe('#getAll', function() {
     it('should return array length  == 2 when getAll', async function() {
-      await fileCache.set('foo', 'bar')
-      await fileCache.set('foo1', 'baz')
+      await memoryCache.set('foo', 'bar')
+      await memoryCache.set('foo1', 'baz')
 
-      let rs = await fileCache.getAll()
+      let rs = await memoryCache.getAll()
       if (rs.length === 2) {
         return Promise.resolve('OK')
       }
@@ -123,9 +115,20 @@ describe('File Cache Module', function() {
     })
   })
 
+  describe('#has', function() {
+    it('should return true when check key "foo"', async function() {
+      await memoryCache.set('foo', 'bar')
+
+      let rs = await memoryCache.has('foo')
+      assert.equal(rs, true, 'response not equal true')
+    })
+  })
+
   describe('#remove', function() {
     it('should return status 1 when remove "foo" key', async function () {
-      let rs = await fileCache.remove('foo', 'bar')
+      await memoryCache.set('foo', 'bar')
+
+      let rs = await memoryCache.remove('foo')
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }
@@ -135,21 +138,21 @@ describe('File Cache Module', function() {
 
   describe('#removeByPattern', function() {
     it('should be empty when get cache after remove all by pattern', async function () {
-      await fileCache.set('other_foo', 'bar')
-      await fileCache.set('pattern_foo', 'bar')
-      await fileCache.set('pattern_foo2', 'bar')
-      await fileCache.set('pattern_foo3', 'bar')
+      await memoryCache.set('other_foo', 'bar')
+      await memoryCache.set('pattern_foo', 'bar')
+      await memoryCache.set('pattern_foo2', 'bar')
+      await memoryCache.set('pattern_foo3', 'bar')
 
-      await fileCache.removeByPattern(/pattern/g)
+      await memoryCache.removeByPattern(/pattern/g)
       if (
-        await fileCache.get('pattern_foo') ||
-        await fileCache.get('pattern_foo2') ||
-        await fileCache.get('pattern_foo3')
+        await memoryCache.get('pattern_foo') ||
+        await memoryCache.get('pattern_foo2') ||
+        await memoryCache.get('pattern_foo3')
       ) {
         return Promise.reject('It still has cache after remove')
       }
 
-      if (!await fileCache.get('other_foo')) {
+      if (!await memoryCache.get('other_foo')) {
         return Promise.reject('It removed incorrect key')
       }
 
@@ -159,7 +162,7 @@ describe('File Cache Module', function() {
 
   describe('#clear', function() {
     it('should return status 1 when clear all cache', async function () {
-      let rs = await fileCache.clear()
+      let rs = await memoryCache.clear()
       if (rs.status === 1) {
         return Promise.resolve('OK')
       }

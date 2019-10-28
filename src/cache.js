@@ -46,7 +46,7 @@ const cache = function (engine) {
    *
    * @param {object} config
    */
-  function init(config) {
+  async function init(config) {
     config = Object.assign({}, baseConfig, config)
 
     // If cache was disable (development purpose, etc...)
@@ -67,6 +67,14 @@ const cache = function (engine) {
         instance = new RedisStore(config.redis)
         break
     }
+
+    await new Promise((resolve, reject) => {
+      instance.init(error => {
+        if (error) return reject(error)
+
+        resolve()
+      })
+    })
     instance.config = config
   }
 

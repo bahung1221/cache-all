@@ -12,6 +12,11 @@ module.exports = class MemoryStore {
     this.client = new LRU(options.ttl || 100)
   }
 
+  init(fn = noop) {
+    // Do nothing
+    fn()
+  }
+
   /**
    * Get an entry.
    *
