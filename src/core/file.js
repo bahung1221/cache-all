@@ -149,7 +149,7 @@ module.exports = class FileStore {
         return fn()
       }
 
-      Fs.remove(cacheFile, (err) => {
+      Fs.unlink(cacheFile, (err) => {
         if (err) return fn(err)
 
         process.nextTick(() => {

@@ -90,7 +90,6 @@ describe('File Cache Module', function() {
     it('should return "bar" when get key "foo" successful', async function() {
       await fileCache.set('foo', 'bar')
       let rs = await fileCache.get('foo')
-      console.log(rs);
 
       assert.equal(rs, 'bar', 'response not equal "bar"')
     })
@@ -119,6 +118,8 @@ describe('File Cache Module', function() {
       if (rs.length === 2) {
         return Promise.resolve('OK')
       }
+
+      console.log(rs)
       return Promise.reject('Length is incorrect, result length is: ' + rs.length)
     })
   })
