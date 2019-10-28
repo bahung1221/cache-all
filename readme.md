@@ -41,7 +41,7 @@ const cache = require('cache-all/file') // file engine
 const cache = require('cache-all/redis') // redis engine
 const app = express()
 
-// ...
+// if you need to use cache methods immediately after init method, you must await it `await cache.init({...})`
 cache.init({
   ttl: 90,
 })
