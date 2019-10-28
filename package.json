@@ -1,6 +1,6 @@
 {
   "name": "cache-all",
-  "version": "2.1.0",
+  "version": "2.0.8",
   "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache)",
   "main": "./memory.js",
   "scripts": {
