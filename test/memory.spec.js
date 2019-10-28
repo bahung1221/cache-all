@@ -28,7 +28,7 @@ describe('In-memory Cache Module', function() {
     })
 
     it('should return status 0 if cache module wasn\'t enable', async function () {
-      memoryCache.init({
+      await memoryCache.init({
         isEnable: false,
       })
 
@@ -40,7 +40,7 @@ describe('In-memory Cache Module', function() {
     })
 
     it('should init successful use default config', async function() {
-      memoryCache.init()
+      await memoryCache.init()
 
       try {
         let rs = await memoryCache.set('key', { foo: 'bar' })
@@ -54,7 +54,7 @@ describe('In-memory Cache Module', function() {
     })
 
     it('should init successful use in-memory engine', async function() {
-      memoryCache.init({
+      await memoryCache.init({
         ttl: 60,
       })
 

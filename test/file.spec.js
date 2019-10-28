@@ -29,7 +29,7 @@ describe('File Cache Module', function() {
     })
 
     it('should return status 0 if cache module wasn\'t enable', async function () {
-      fileCache.init({
+      await fileCache.init({
         isEnable: false,
       })
 
@@ -41,7 +41,7 @@ describe('File Cache Module', function() {
     })
 
     it('should init successful use default config', async function() {
-      fileCache.init({
+      await fileCache.init({
         isEnable: true,
       })
 
@@ -53,7 +53,7 @@ describe('File Cache Module', function() {
     })
 
     it('should init successful use file engine', async function() {
-      fileCache.init({
+      await fileCache.init({
         engine: 'file',
         ttl: 60,
         file: { path: path.join(__dirname, '../storage/cache') },

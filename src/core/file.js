@@ -11,8 +11,17 @@ module.exports = class FileStore {
    * @api public
    */
   constructor(options) {
+    this.options = options
+  }
+
+  /**
+   * Init cache instance
+   *
+   * @param {Function} fn
+   */
+  init(fn = noop) {
     let self = this
-    self.path = options.path
+    self.path = this.options.path
     self.cache = {}
 
     Fs.exists(self.path, (isExists) => {
@@ -36,6 +45,10 @@ module.exports = class FileStore {
           file = file.replace('.json', '')
 
           self.cache[file] = true
+        })
+
+        process.nextTick(function tick() {
+          fn(null, null)
         })
       })
     }
