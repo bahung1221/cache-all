@@ -13,6 +13,21 @@ const defaultConfig = {
   },
 }
 
+function startRedisClient(options) {
+  const redisClient = redis.createClient(options.redis.port, options.redis.host)
+  return new Promise((resolve, reject) => {
+    redisClient.auth(options.redis.password, (err) => {
+      if (err) return reject(err)
+
+      redisClient.select(options.redis.database, (err) => {
+        if (err) return reject(err)
+
+        resolve(redisClient)
+      })
+    })
+  })
+}
+
 afterEach(async function() {
   // Cleanup
   await redisCache.clear()
@@ -52,7 +67,8 @@ describe('Redis Cache Module', function() {
     })
 
     it('should init successful use default config', async function() {
-      await redisCache.init()
+      const options = JSON.parse(JSON.stringify(defaultConfig))
+      await redisCache.init(options)
 
       try {
         let rs = await redisCache.set('key', { foo: 'bar' })
@@ -65,48 +81,26 @@ describe('Redis Cache Module', function() {
       }
     })
 
-    it('should init successful use redis engine', async function() {
-      await redisCache.init({
-        engine: 'redis',
-        ttl: 90,
-        redis: {
-          port: 6379,
-          host: '127.0.0.1',
-        },
-      })
-
-      try {
-        await redisCache.get('key')
-        return Promise.resolve('Done')
-      } catch (e) {
-        Promise.reject('Init cache redis module fail')
-      }
-    })
-
     it('should init successful with empty prefix', async function() {
       const options = JSON.parse(JSON.stringify(defaultConfig))
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const redisClient = await startRedisClient(options)
 
       options.redis.prefix = ''
       await redisCache.init(options)
       await redisCache.set('prefixKey', 'prefixValue')
 
       return new Promise((resolve, reject) => {
-        redisClient.select(options.redis.database, (err) => {
-          if (err) return reject('Init cache redis module fail')
+        redisClient.get('prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with custom prefix fail')
 
-          redisClient.get('prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with custom prefix fail')
-
-            resolve('Done')
-          })
+          resolve('Done')
         })
       })
     })
 
     it('should init successful with custom prefix', async function() {
       const options = JSON.parse(JSON.stringify(defaultConfig))
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const redisClient = await startRedisClient(options)
 
       options.redis.prefix = 'custom:'
 
@@ -114,34 +108,26 @@ describe('Redis Cache Module', function() {
       await redisCache.set('prefixKey', 'prefixValue')
 
       return new Promise((resolve, reject) => {
-        redisClient.select(options.redis.database, (err) => {
-          if (err) return reject('Init cache redis module fail')
+        redisClient.get('custom:prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with custom prefix fail')
 
-          redisClient.get('custom:prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with custom prefix fail')
-
-            resolve('Done')
-          })
+          resolve('Done')
         })
       })
     })
 
     it('should init successful with default prefix', async function() {
       const options = JSON.parse(JSON.stringify(defaultConfig))
-      const redisClient = redis.createClient(options.redis.port, options.redis.host)
+      const redisClient = await startRedisClient(options)
 
       await redisCache.init(options)
       await redisCache.set('prefixKey', 'prefixValue')
 
       return new Promise((resolve, reject) => {
-        redisClient.select(options.redis.database, (err) => {
-          if (err) return reject('Init cache redis module fail')
+        redisClient.get('cacheall:prefixKey', (err, data) => {
+          if (err || !data) return reject('Init cache redis module with empty prefix fail')
 
-          redisClient.get('cacheall:prefixKey', (err, data) => {
-            if (err || !data) return reject('Init cache redis module with empty prefix fail')
-
-            resolve('Done')
-          })
+          resolve('Done')
         })
       })
     })
