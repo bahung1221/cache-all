@@ -4,6 +4,6 @@ node_js:
   - 8
 services:
   - redis-server
-before_script: sudo redis-server /etc/redis/redis.conf --port 6380 --requirepass 'secret'
+before_script: sudo redis-server /etc/redis/redis.conf --requirepass 'secret'
 script: npm run test
 after_success: npm run coverage
