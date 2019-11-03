@@ -41,7 +41,7 @@ const cache = require('cache-all/file') // file engine
 const cache = require('cache-all/redis') // redis engine
 const app = express()
 
-// ...
+// if you need to use cache methods immediately after init method, you must await it `await cache.init({...})`
 cache.init({
   ttl: 90,
 })
@@ -239,3 +239,4 @@ You are welcome <3
 |2.0.1|2019-09-08|Refactor FileStore - use ES6 class instead prototype|
 |2.0.2|2019-09-21|Add `getAll` method & integrate travis-ci & code coverage|
 |2.0.6|2019-10-24|Allow redis empty prefix [PR#15](https://github.com/bahung1221/cache-all/pull/15)|
+|2.0.8|2019-10-28|FS async implementation [PR#19](https://github.com/bahung1221/cache-all/pull/19)|

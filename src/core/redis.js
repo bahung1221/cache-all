@@ -12,34 +12,42 @@ class RedisStore {
    * @api public
    */
   constructor(options = {}) {
-    const { port, host, client, setex, password, database, prefix } = options
+    this.options = options
+  }
+
+  init(fn = noop) {
+    const { port, host, client, setex, password, database, prefix } = this.options
 
     if (typeof setex === 'function') {
-      this.client = options
+      this.client = this.options
     } else if (client) {
       this.client = client
     } else if (!port && !host) {
       this.client = redis.createClient()
     } else {
-      const opts = Object.assign({}, options, { prefix: null })
+      const opts = Object.assign({}, this.options, { prefix: null })
       this.client = redis.createClient(port, host, opts)
-    }
-
-    if (password) {
-      this.client.auth(password, (err) => {
-        if (err) throw err
-      })
-    }
-
-    if (database) {
-      this.client.select(database, (err) => {
-        if (err) throw err
-      })
     }
 
     const isPrefixEmpty = (prefix === '')
 
-    this.prefix = isPrefixEmpty ? '' : 'cacheall:'
+    this.prefix = isPrefixEmpty ? '' : (prefix || 'cacheall:')
+
+    if (password && database) {
+      this.client.auth(password, (err) => {
+        if (err) throw err
+
+        if (database) {
+          this.client.select(database, fn)
+        }
+      })
+    } else if (password) {
+      this.client.auth(password, fn)
+    } else if (database) {
+      this.client.select(database, fn)
+    } else {
+      fn()
+    }
   }
 
   /**
