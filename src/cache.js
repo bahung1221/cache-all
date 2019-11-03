@@ -125,7 +125,6 @@ const cache = function (engine) {
   /**
    * Get all cached data
    *
-   * @param key
    * @return {Promise<*>}
    */
   async function getAll() {
