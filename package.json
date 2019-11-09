@@ -3,7 +3,6 @@
   "version": "2.0.8",
   "description": "Fast, efficient cache engines for both express routes cache & native node (redis, in-memory & file cache)",
   "main": "./memory.js",
-  "typings": "./memory.d.ts",
   "scripts": {
     "lint": "eslint ./src --fix",
     "test": "nyc mocha ./test/*.spec.js --exit",

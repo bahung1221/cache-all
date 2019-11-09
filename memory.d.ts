@@ -1,6 +1,27 @@
-type Status = { status: 0 | 1 }
+declare module 'cache-all/memory' {
+  import { RedisClient } from 'redis';
 
-  interface Config {
+  function init(config?: Config): Promise<void>;
+
+  function set(key: string, value: any, time?: number): Promise<Status>;
+
+  function get(key: string): Promise<Status>;
+
+  function getAll(): Promise<Status>;
+
+  function has(key: string): Promise<boolean>;
+
+  function remove(key: string): Promise<Status>;
+
+  function removeByPattern(pattern: string): Promise<Status>;
+
+  function clear(): Promise<Status>;
+
+  function middleware(time: number, prefix: string): Function;
+
+  export type Status = { status: 0 | 1 }
+
+  export interface Config {
     isEnable?: boolean;
     ttl?: number;
     file?: {
@@ -9,33 +30,11 @@ type Status = { status: 0 | 1 }
     redis?: {
       port?: number;
       host?: string;
-      client?: any;
+      client?: RedisClient;
       setex?: Function;
       password?: string;
       database?: string;
       prefix?: string;
     }
   }
-declare module 'cache-all' {
-  function init(config?: Config): Promise<void>;
-}
-
-declare module 'cache-all' {
-  function init(config?: Config): Promise<void>;
-
-  // set(key: string, value: any, time?: number): Promise<Status>;
-
-  // get(key: string): Promise<any>;
-
-  // getAll(): Promise<any>;
-
-  // has(key: string): Promise<boolean>;
-
-  // remove(key: string): Promise<Status>;
-
-  // removeByPattern(pattern: string): Promise<Status>;
-
-  // clear(): Promise<Status>;
-
-  // middleware(time: number, prefix: string): Function;
 }
