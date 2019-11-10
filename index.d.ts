@@ -1,23 +1,39 @@
-declare module 'cache-all' {
-  type Config = import('./config').Config;
-  type Status = import('./config').Status;
-  type RequestHandler = import('express').RequestHandler;
+import { RedisClient } from 'redis';
+import { RequestHandler } from 'express';
 
-  function init(config?: Config): Promise<void>;
-
-  function set(key: string, value: any, time?: number): Promise<Status>;
-
-  function get(key: string): Promise<any>;
-
-  function getAll(): Promise<Array<any>>;
-
-  function has(key: string): Promise<boolean>;
-
-  function remove(key: string): Promise<Status>;
-
-  function removeByPattern(pattern: string | RegExp): Promise<Status>;
-
-  function clear(): Promise<Status>;
-
-  function middleware(time: number, prefix?: string): RequestHandler;
+export interface Config {
+  isEnable?: boolean;
+  ttl?: number;
+  file?: {
+    path?: string;
+  };
+  redis?: {
+    port?: number;
+    host?: string;
+    client?: RedisClient;
+    setex?: Function;
+    password?: string;
+    database?: string;
+    prefix?: string;
+  }
 }
+
+export type Status = { status: 0 | 1 }
+
+export function init(config?: Config): Promise<void>;
+
+export function set(key: string, value: any, time?: number): Promise<Status>;
+
+export function get(key: string): Promise<any>;
+
+export function getAll(): Promise<Array<any>>;
+
+export function has(key: string): Promise<boolean>;
+
+export function remove(key: string): Promise<Status>;
+
+export function removeByPattern(pattern: string | RegExp): Promise<Status>;
+
+export function clear(): Promise<Status>;
+
+export function middleware(time: number, prefix?: string): RequestHandler;
