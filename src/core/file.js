@@ -190,6 +190,9 @@ module.exports = class FileStore {
       cache = self.cache
 
     const keys = Object.keys(cache)
+    if (!keys.length) {
+      return entries
+    }
 
     keys.forEach((entry, index) => {
       self.get(entry, function (err, data) {

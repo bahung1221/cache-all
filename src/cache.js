@@ -244,20 +244,28 @@ const cache = function (engine) {
       // If data of current request was cached, response it
       let cached = await get(key)
       if (cached) {
-        return res.json(cached)
+        return res.send(cached)
       }
 
+      // Flag to determine whenever data was cached
+      let isCached = false
       // Get response data and set cache before response to client (json)
       res.sendJsonResponse = res.json
       res.json = async function (data) {
-        await set(key, data, time || instance.config.ttl)
+        if (!isCached) {
+          await set(key, data, time || instance.config.ttl)
+          isCached = true
+        }
         res.sendJsonResponse(data)
       }
 
       // Get response data and set cache before response to client (plain text)
       res.sendPlainTextResponse = res.send
       res.send = async function (data) {
-        await set(key, data, time || instance.config.ttl)
+        if (!isCached) {
+          await set(key, data, time || instance.config.ttl)
+          isCached = true
+        }
         res.sendPlainTextResponse(data)
       }
       next()
