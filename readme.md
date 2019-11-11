@@ -80,9 +80,10 @@ Just config for engine that will be use
   redis: {
     port: 6379,
     host: '127.0.0.1',
-    // password: 'yourpass',
-    // database: 0,
-    // prefix, // default is `cacheall:`
+    // password: String,
+    // database: Number,
+    // prefix: String, // default is `cacheall:`
+    // setex: Function
   }
 }
 ```
@@ -215,6 +216,13 @@ memoryCache
   .set('foo', 'bar', 90)
   .then(result => console.log(result)) // {status: 1}
 ```
+
+## Typescript
+Add `@types/express` and `@type/redis` as devDependencies:
+```
+yarn add -D @types/express @types/redis
+```
+That's it!
 
 ## Test
 ```
