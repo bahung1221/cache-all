@@ -249,6 +249,7 @@ You are welcome <3
 |2.0.6|2019-10-24|Allow redis empty prefix [PR#15](https://github.com/bahung1221/cache-all/pull/15)|
 |2.0.8|2019-10-28|FS async implementation [PR#19](https://github.com/bahung1221/cache-all/pull/19)|
 |2.1.0|2019-10-28|Add type definition (typescript) [PR#22](https://github.com/bahung1221/cache-all/pull/22)|
+|2.1.1|2020-08-05|Upgrade node-redis to `v3` (Removed hiredis completely)|
 
 ## License
 This project is licensed under the terms of the [MIT](https://github.com/bahung1221/cache-all/blob/master/LICENSE) license
