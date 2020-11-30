@@ -81,7 +81,7 @@ Just config for engine that will be use
     port: 6379,
     host: '127.0.0.1',
     // password: String,
-    // database: Number,
+    // database: String,
     // prefix: String, // default is `cacheall:`
     // setex: Function
   }
