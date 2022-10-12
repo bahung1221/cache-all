@@ -7,13 +7,11 @@
 [![NPM info](https://nodei.co/npm/cache-all.png?downloads=true)](https://www.npmjs.com/package/cache-all)
 
 # cache-all
-:rocket: Fast, efficient cache engines for expressJS & native nodeJS (redis, in-memory & file caching),
-singleton pattern make your application run smoothly like a boss.
+:rocket: Fast, simple cache engines for expressJS & native nodeJS (redis, in-memory & file caching).
 
 - Multi cache engines, each engine has one singleton instance and independent with other engine.
 - Include express middleware, which can be use for cache response on specific routes.
 - Init once and then use anywhere for caching anything in your application.
-- ES6 Promise.
 
 ## Install
 ```
